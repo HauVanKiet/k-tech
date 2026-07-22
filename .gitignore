@@ -1,0 +1,21 @@
+# Environment
+.env
+.env.local
+
+# Node
+node_modules
+npm-debug.log*
+
+# Build
+dist
+dist-ssr
+
+# IDE
+.vscode/*
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
