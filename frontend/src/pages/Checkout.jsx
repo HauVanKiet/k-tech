@@ -72,18 +72,38 @@ const Checkout = () => {
     }
   };
 
-  const handleConfirmPayment = () => {
-    // Cập nhật trạng thái đơn hàng
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-    const updatedOrders = orders.map(o => 
-      o.orderId === paymentInfo?.orderId 
-        ? { ...o, status: 'Đã xác nhận', paymentStatus: 'success' } 
-        : o
-    );
-    localStorage.setItem('orders', JSON.stringify(updatedOrders));
-    
-    clearCart();
-    setOrderPlaced(true);
+  const [verifying, setVerifying] = useState(false);
+
+  const handleConfirmPayment = async () => {
+    setVerifying(true);
+    try {
+      // Gọi API SePay để kiểm tra giao dịch thực tế
+      const verifyRes = await axios.post(`${API_BASE_URL}/api/sepay/verify`, {
+        orderId: paymentInfo?.orderId,
+        amount: finalTotal,
+        customerName: form.fullName,
+      });
+
+      if (verifyRes.data.success && verifyRes.data.data.verified) {
+        // Có giao dịch thật → xác nhận đơn hàng
+        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        const updatedOrders = orders.map(o => 
+          o.orderId === paymentInfo?.orderId 
+            ? { ...o, status: 'Đã xác nhận', paymentStatus: 'success' } 
+            : o
+        );
+        localStorage.setItem('orders', JSON.stringify(updatedOrders));
+        clearCart();
+        setOrderPlaced(true);
+      } else {
+        // Chưa có giao dịch → báo lỗi
+        alert('❌ ' + (verifyRes.data.data?.message || 'Chưa nhận được tiền. Vui lòng kiểm tra lại hoặc thử lại sau.'));
+      }
+    } catch (error) {
+      alert('❌ Lỗi kiểm tra giao dịch: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setVerifying(false);
+    }
   };
 
   if (!user) {
@@ -182,14 +202,15 @@ const Checkout = () => {
             <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
               <button
                 onClick={handleConfirmPayment}
+                disabled={verifying}
                 style={{
                   flex: 1,
-                  background: 'linear-gradient(90deg, #dc2626, #ef4444)',
+                  background: verifying ? '#7f8c8d' : 'linear-gradient(90deg, #dc2626, #ef4444)',
                   color: 'white', border: 'none', padding: '14px',
                   borderRadius: '999px', fontWeight: '700', fontSize: '16px',
-                  cursor: 'pointer',
+                  cursor: verifying ? 'not-allowed' : 'pointer',
                 }}
-              >✅ Đã chuyển khoản</button>
+              >{verifying ? '⏳ Đang kiểm tra...' : '✅ Đã chuyển khoản'}</button>
             </div>
           </div>
         </div>
