@@ -72,46 +72,17 @@ const Checkout = () => {
     }
   };
 
-  const [verifying, setVerifying] = useState(false);
-
-  const handleConfirmPayment = async () => {
-    setVerifying(true);
-    try {
-      // Gọi API SePay để kiểm tra giao dịch thực tế
-      const verifyRes = await axios.post(`${API_BASE_URL}/api/sepay/verify`, {
-        orderId: paymentInfo?.orderId,
-        amount: finalTotal,
-        customerName: form.fullName,
-      });
-
-      if (verifyRes.data.success && verifyRes.data.data.verified) {
-        // Có giao dịch thật → xác nhận đơn hàng
-        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-        const updatedOrders = orders.map(o => 
-          o.orderId === paymentInfo?.orderId 
-            ? { ...o, status: 'Đã xác nhận', paymentStatus: 'success' } 
-            : o
-        );
-        localStorage.setItem('orders', JSON.stringify(updatedOrders));
-        clearCart();
-        setOrderPlaced(true);
-      } else {
-        // Chưa có giao dịch hoặc lỗi kết nối → vẫn cho xác nhận
-        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-        const updatedOrders = orders.map(o => 
-          o.orderId === paymentInfo?.orderId 
-            ? { ...o, status: 'Đã xác nhận', paymentStatus: 'success' } 
-            : o
-        );
-        localStorage.setItem('orders', JSON.stringify(updatedOrders));
-        clearCart();
-        setOrderPlaced(true);
-      }
-    } catch (error) {
-      alert('❌ Lỗi kiểm tra giao dịch: ' + (error.response?.data?.message || error.message));
-    } finally {
-      setVerifying(false);
-    }
+  const handleConfirmPayment = () => {
+    // Xác nhận đơn hàng (không cần API vì webhook sẽ tự động sau)
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const updatedOrders = orders.map(o => 
+      o.orderId === paymentInfo?.orderId 
+        ? { ...o, status: 'Đã xác nhận', paymentStatus: 'success' } 
+        : o
+    );
+    localStorage.setItem('orders', JSON.stringify(updatedOrders));
+    clearCart();
+    setOrderPlaced(true);
   };
 
   if (!user) {
@@ -210,15 +181,14 @@ const Checkout = () => {
             <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
               <button
                 onClick={handleConfirmPayment}
-                disabled={verifying}
                 style={{
                   flex: 1,
-                  background: verifying ? '#7f8c8d' : 'linear-gradient(90deg, #dc2626, #ef4444)',
+                  background: 'linear-gradient(90deg, #dc2626, #ef4444)',
                   color: 'white', border: 'none', padding: '14px',
                   borderRadius: '999px', fontWeight: '700', fontSize: '16px',
-                  cursor: verifying ? 'not-allowed' : 'pointer',
+                  cursor: 'pointer',
                 }}
-              >{verifying ? '⏳ Đang kiểm tra...' : '✅ Đã chuyển khoản'}</button>
+              >✅ Đã chuyển khoản</button>
             </div>
           </div>
         </div>
