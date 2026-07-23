@@ -1,13 +1,60 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 
 // Lấy thông tin tài khoản ngân hàng từ .env
-const BANK_CODE = process.env.BANK_CODE || 'MB';          // Mã ngân hàng (MB, VCB, ACB, TPB,...)
-const BANK_NUMBER = process.env.BANK_NUMBER || '1234567890'; // Số tài khoản
-const BANK_NAME = process.env.BANK_NAME || 'K_TECH COMPANY'; // Chủ tài khoản
+const BANK_CODE = process.env.BANK_CODE || 'MB';
+const BANK_NUMBER = process.env.BANK_NUMBER || '1234567890';
+const BANK_NAME = process.env.BANK_NAME || 'K_TECH COMPANY';
+const SEPAY_WEBHOOK_SECRET = process.env.SEPAY_WEBHOOK_SECRET || '';
 
-// Webhook từ SePay để xác nhận giao dịch
-router.post('/webhook', async (req, res) => {
+// Middleware xác thực HMAC-SHA256 từ SePay
+const verifySePayHMAC = (req, res, next) => {
+    if (!SEPAY_WEBHOOK_SECRET) {
+        console.warn("⚠️ SEPAY_WEBHOOK_SECRET chưa được cấu hình, bỏ qua xác thực HMAC");
+        return next();
+    }
+
+    // SePay gửi chữ ký trong headers
+    const signature = req.headers['x-sepay-signature'];
+    const timestamp = req.headers['x-sepay-timestamp'];
+    
+    if (!signature || !timestamp) {
+        console.warn("❌ Thiếu header X-SEPAY-SIGNATURE hoặc X-SEPAY-TIMESTAMP, từ chối request");
+        return res.status(401).json({ success: false, message: "Missing signature headers" });
+    }
+
+    // Lấy raw body
+    const payload = JSON.stringify(req.body);
+    
+    // Tạo chữ ký theo format: sha256=HMAC-SHA256(timestamp.payload, secret)
+    const expected = 'sha256=' + crypto
+        .createHmac('sha256', SEPAY_WEBHOOK_SECRET)
+        .update(timestamp + '.' + payload)
+        .digest('hex');
+
+    // So sánh chữ ký (dùng timing-safe comparison)
+    try {
+        const isValid = crypto.timingSafeEqual(
+            Buffer.from(signature),
+            Buffer.from(expected)
+        );
+        
+        if (!isValid) {
+            console.warn("❌ Chữ ký HMAC không khớp, có thể là request giả mạo");
+            return res.status(401).json({ success: false, message: "Invalid signature" });
+        }
+    } catch (err) {
+        console.warn("❌ Lỗi so sánh HMAC:", err.message);
+        return res.status(401).json({ success: false, message: "Signature comparison error" });
+    }
+
+    console.log("✅ Xác thực HMAC-SHA256 thành công");
+    next();
+};
+
+// Webhook từ SePay - có xác thực HMAC
+router.post('/webhook', verifySePayHMAC, async (req, res) => {
     try {
         const { 
             transaction_id,
@@ -33,6 +80,8 @@ router.post('/webhook', async (req, res) => {
             const amountNum = parseInt(amount) || 0;
             
             console.log(`✅ Đã xác nhận thanh toán cho đơn hàng: ${orderCode}, số tiền: ${amountNum}đ`);
+            
+            // Ở đây bạn có thể cập nhật trạng thái đơn hàng trong Database
         }
 
         res.json({ 
@@ -51,11 +100,9 @@ router.post('/create-payment', async (req, res) => {
     try {
         const { amount, customerName } = req.body;
 
-        // Tạo mã đơn hàng
         const timestamp = Date.now().toString().slice(-6);
         const orderId = `K_TECH_${timestamp}`;
 
-        // Tạo URL QR VietQR
         const qrUrl = `https://img.vietqr.io/image/${BANK_CODE}-${BANK_NUMBER}-compact2.jpg?amount=${parseInt(amount) || 0}&addInfo=${encodeURIComponent(customerName + ' ' + orderId)}&accountName=${encodeURIComponent(BANK_NAME)}`;
 
         const bankInfo = {
