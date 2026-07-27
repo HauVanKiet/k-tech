@@ -2,6 +2,18 @@ const express = require('express');
 const router = express.Router();
 const BuyBack = require('../models/BuyBack');
 const jwt = require('jsonwebtoken');
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
+
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'K_Tech_Buyback',
+        allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    },
+});
+const upload = multer({ storage: storage });
 
 const authMiddleware = (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1];
@@ -13,16 +25,23 @@ const authMiddleware = (req, res, next) => {
     } catch (err) { res.status(400).json({ message: "Token không hợp lệ" }); }
 };
 
-// 1. USER gửi yêu cầu thu cũ
-router.post('/request', authMiddleware, async (req, res) => {
+// 1. USER gửi yêu cầu thu cũ (có upload ảnh qua Cloudinary)
+router.post('/request', authMiddleware, upload.fields([
+    { name: 'invoiceImages', maxCount: 5 },
+    { name: 'deviceImages', maxCount: 8 }
+]), async (req, res) => {
     try {
-        const { fullName, phone, address, deviceInfo, deviceType, exteriorCondition, deviceCondition, desiredPrice, invoiceImages, deviceImages } = req.body;
+        const { fullName, phone, address, deviceInfo, deviceType, exteriorCondition, deviceCondition, desiredPrice } = req.body;
+        
+        const invoiceUrls = req.files?.invoiceImages ? req.files.invoiceImages.map(f => f.path) : [];
+        const deviceUrls = req.files?.deviceImages ? req.files.deviceImages.map(f => f.path) : [];
+
         const newRequest = new BuyBack({
             user_id: req.user.id,
             fullName, phone, address, deviceInfo, deviceType,
-            exteriorCondition, deviceCondition, desiredPrice,
-            invoiceImages: invoiceImages || [],
-            deviceImages: deviceImages || []
+            exteriorCondition, deviceCondition, desiredPrice: Number(desiredPrice) || 0,
+            invoiceImages: invoiceUrls,
+            deviceImages: deviceUrls
         });
         await newRequest.save();
         res.status(201).json({ message: "Gửi yêu cầu thu cũ thành công!", data: newRequest });
@@ -59,7 +78,7 @@ router.put('/admin/price/:id', authMiddleware, async (req, res) => {
 // 5. USER phản hồi (chấp nhận/từ chối giá)
 router.put('/user/respond/:id', authMiddleware, async (req, res) => {
     try {
-        const { action } = req.body; // 'accept' hoặc 'reject'
+        const { action } = req.body;
         const update = { status: action === 'accept' ? 'accepted' : 'rejected' };
         if (action !== 'accept') update.shippingStatus = 'cancelled';
         const updated = await BuyBack.findByIdAndUpdate(req.params.id, update, { new: true });
@@ -73,8 +92,7 @@ router.put('/user/shipping/:id', authMiddleware, async (req, res) => {
         const { shippingMethod, deliveryName, deliveryPhone, deliveryAddress } = req.body;
         const statusMap = { store: 'waiting_receive', shipping: 'waiting_delivery', home: 'waiting_receive' };
         const updated = await BuyBack.findByIdAndUpdate(req.params.id, {
-            shippingMethod,
-            deliveryName, deliveryPhone, deliveryAddress,
+            shippingMethod, deliveryName, deliveryPhone, deliveryAddress,
             shippingStatus: statusMap[shippingMethod] || '',
         }, { new: true });
         res.json({ message: "Đã cập nhật phương thức giao hàng", data: updated });

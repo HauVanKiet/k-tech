@@ -40,23 +40,26 @@ const Buyback = () => {
     if (user && token) fetchRequests();
   }, [user, token]);
 
-  const toBase64 = (file) => new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.readAsDataURL(file);
-  });
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.fullName || !form.phone || !form.deviceInfo) { alert('Vui lòng điền đầy đủ thông tin'); return; }
     setSubmitting(true);
     try {
-      const invoiceUrls = await Promise.all(invoiceFiles.map(toBase64));
-      const deviceUrls = await Promise.all(deviceFiles.map(toBase64));
-      const res = await axios.post(`${API_BASE_URL}/api/buyback/request`, {
-        ...form, desiredPrice: Number(form.desiredPrice) || 0,
-        invoiceImages: invoiceUrls, deviceImages: deviceUrls
-      }, { headers });
+      const formData = new FormData();
+      formData.append('fullName', form.fullName);
+      formData.append('phone', form.phone);
+      formData.append('address', form.address);
+      formData.append('deviceInfo', form.deviceInfo);
+      formData.append('deviceType', form.deviceType);
+      formData.append('exteriorCondition', form.exteriorCondition);
+      formData.append('deviceCondition', form.deviceCondition);
+      formData.append('desiredPrice', form.desiredPrice || '0');
+      invoiceFiles.forEach(f => formData.append('invoiceImages', f));
+      deviceFiles.forEach(f => formData.append('deviceImages', f));
+
+      const res = await axios.post(`${API_BASE_URL}/api/buyback/request`, formData, {
+        headers: { ...headers, 'Content-Type': 'multipart/form-data' }
+      });
       alert('✅ ' + res.data.message);
       setForm({ ...form, deviceInfo: '', desiredPrice: '' });
       setInvoiceFiles([]);
