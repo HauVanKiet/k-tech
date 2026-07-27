@@ -7,6 +7,7 @@ import { API_BASE_URL } from './api';
 import AdminProducts from './admin/AdminProducts';
 import AdminUsers from './admin/AdminUsers';
 import AdminBuyback from './admin/AdminBuyback';
+import Buyback from './pages/Buyback';
 import AdminOrders from './admin/AdminOrders';
 import { CartProvider, useCart } from './context/CartContext';
 import Cart from './pages/Cart';
@@ -594,7 +595,7 @@ const AppContent = () => {
                     <Link to="/admin/products" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Quản lý sản phẩm</Link>
                     <Link to="/admin/users" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Quản lý người dùng</Link>
                     <Link to="/admin/orders" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Quản lý đơn hàng</Link>
-                    <Link to="/admin/buyback" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Quản lý thu cũ</Link>
+                    <Link to="/buyback" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Thu cũ sản phẩm</Link>
                   </>
                 ) : null}
               </div>
@@ -681,7 +682,7 @@ const AppContent = () => {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/login" element={<Login onLoginSuccess={(user) => setCurrentUser(user)} />} />
           <Route path="/profile" element={<Profile user={currentUser} onUpdateUser={(u) => setCurrentUser(u)} />} />
-          <Route path="/buyback" element={<BuyBack />} />
+          <Route path="/buyback" element={<Buyback />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<OrderHistory />} />
