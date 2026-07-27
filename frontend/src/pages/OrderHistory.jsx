@@ -53,10 +53,13 @@ const OrderHistory = () => {
                 <span style={{ fontSize: '13px', color: '#7a4a4a' }}>Đơn hàng #{index + 1}</span>
                 <span style={{ fontSize: '12px', color: '#991b1b', marginLeft: '12px' }}>🕐 {new Date(order.date).toLocaleString('vi-VN')}</span>
               </div>
-              <span style={{
-                background: '#dcfce7', color: '#15803d', padding: '4px 12px',
-                borderRadius: '999px', fontWeight: '700', fontSize: '12px',
-              }}>✅ Đã xác nhận</span>
+              {order.status === 'Đã xác nhận' ? (
+                <span style={{ background: '#dcfce7', color: '#15803d', padding: '4px 12px', borderRadius: '999px', fontWeight: '700', fontSize: '12px' }}>✅ Đã xác nhận</span>
+              ) : order.status === 'Đã hủy' ? (
+                <span style={{ background: '#fef2f2', color: '#dc2626', padding: '4px 12px', borderRadius: '999px', fontWeight: '700', fontSize: '12px' }}>❌ Đã hủy</span>
+              ) : (
+                <span style={{ background: '#fef3c7', color: '#b45309', padding: '4px 12px', borderRadius: '999px', fontWeight: '700', fontSize: '12px' }}>⏳ Chờ xác nhận</span>
+              )}
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>

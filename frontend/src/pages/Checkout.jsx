@@ -57,7 +57,7 @@ const Checkout = () => {
           paymentMethod: 'Chuyển khoản',
           shippingFee,
           finalTotal,
-          status: 'Chờ thanh toán',
+          status: 'Chờ xác nhận',
           paymentStatus: 'pending',
         };
         
@@ -73,16 +73,17 @@ const Checkout = () => {
   };
 
   const handleConfirmPayment = () => {
-    // Xác nhận đơn hàng (không cần API vì webhook sẽ tự động sau)
+    // Cập nhật trạng thái đơn hàng thành "Chờ xác nhận"
     const orders = JSON.parse(localStorage.getItem('orders') || '[]');
     const updatedOrders = orders.map(o => 
       o.orderId === paymentInfo?.orderId 
-        ? { ...o, status: 'Đã xác nhận', paymentStatus: 'success' } 
+        ? { ...o, status: 'Chờ xác nhận', paymentStatus: 'pending' } 
         : o
     );
     localStorage.setItem('orders', JSON.stringify(updatedOrders));
     clearCart();
-    setOrderPlaced(true);
+    alert('✅ Đơn hàng đã được ghi nhận! Vui lòng chờ admin xác nhận thanh toán.');
+    navigate('/orders');
   };
 
   if (!user) {
