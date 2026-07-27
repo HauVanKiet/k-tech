@@ -9,19 +9,18 @@ const Buyback = () => {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const [activeTab, setActiveTab] = useState('create');
   const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [chatMsg, setChatMsg] = useState('');
 
-  // Form tạo yêu cầu
   const [form, setForm] = useState({
     fullName: user?.fullName || '', phone: user?.phone || '', address: '',
     deviceInfo: '', deviceType: 'Laptop', exteriorCondition: 'Tốt',
-    deviceCondition: 'Hoạt động tốt', desiredPrice: '', invoiceImages: '', deviceImages: ''
+    deviceCondition: 'Hoạt động tốt', desiredPrice: ''
   });
+  const [invoiceFiles, setInvoiceFiles] = useState([]);
+  const [deviceFiles, setDeviceFiles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
-  // Form giao hàng
   const [deliveryForm, setDeliveryForm] = useState({
     shippingMethod: '', deliveryName: user?.fullName || '', deliveryPhone: user?.phone || '', deliveryAddress: ''
   });
@@ -41,19 +40,27 @@ const Buyback = () => {
     if (user && token) fetchRequests();
   }, [user, token]);
 
+  const toBase64 = (file) => new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.fullName || !form.phone || !form.deviceInfo) { alert('Vui lòng điền đầy đủ thông tin'); return; }
     setSubmitting(true);
     try {
+      const invoiceUrls = await Promise.all(invoiceFiles.map(toBase64));
+      const deviceUrls = await Promise.all(deviceFiles.map(toBase64));
       const res = await axios.post(`${API_BASE_URL}/api/buyback/request`, {
-        ...form,
-        desiredPrice: Number(form.desiredPrice) || 0,
-        invoiceImages: form.invoiceImages ? [form.invoiceImages] : [],
-        deviceImages: form.deviceImages ? [form.deviceImages] : []
+        ...form, desiredPrice: Number(form.desiredPrice) || 0,
+        invoiceImages: invoiceUrls, deviceImages: deviceUrls
       }, { headers });
       alert('✅ ' + res.data.message);
-      setForm({ ...form, deviceInfo: '', desiredPrice: '', invoiceImages: '', deviceImages: '' });
+      setForm({ ...form, deviceInfo: '', desiredPrice: '' });
+      setInvoiceFiles([]);
+      setDeviceFiles([]);
       fetchRequests();
       setActiveTab('my');
     } catch (err) { alert('❌ ' + (err.response?.data?.error || err.message)); }
@@ -116,13 +123,14 @@ const Buyback = () => {
     if (r.status === 'rejected' || r.status === 'cancelled') return <span style={{ background: '#fef2f2', color: '#dc2626', padding: '4px 10px', borderRadius: 999, fontWeight: 700, fontSize: 12 }}>❌ Đã hủy</span>;
   };
 
+  const inp = { width: '100%', padding: 10, borderRadius: 8, border: '1px solid rgba(220,38,38,0.18)', outline: 'none', boxSizing: 'border-box' };
+
   if (!user) {
     return <div style={{ textAlign: 'center', padding: 40, color: '#5b1616' }}><h2>Vui lòng đăng nhập</h2><Link to="/login?redirect=/buyback" style={{ color: '#dc2626' }}>Đăng nhập ngay</Link></div>;
   }
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px', display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, minHeight: '80vh', color: '#5b1616' }}>
-      {/* Sidebar */}
       <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid rgba(220,38,38,0.1)', height: 'fit-content', position: 'sticky', top: 24 }}>
         <h3 style={{ color: '#7f1d1d', margin: '0 0 16px', fontSize: 16 }}>📦 Thu cũ sản phẩm</h3>
         {[
@@ -138,9 +146,7 @@ const Buyback = () => {
         ))}
       </div>
 
-      {/* Content */}
       <div>
-        {/* Tab: Tạo yêu cầu */}
         {activeTab === 'create' && (
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid rgba(220,38,38,0.1)' }}>
             <h2 style={{ color: '#7f1d1d', marginBottom: 16 }}>📝 Tạo yêu cầu thu cũ</h2>
@@ -163,8 +169,16 @@ const Buyback = () => {
                 </select>
               </div>
               <input name="desiredPrice" type="number" placeholder="Mức giá mong muốn (VNĐ)" value={form.desiredPrice} onChange={handleChange} style={inp} />
-              <input name="invoiceImages" placeholder="Link ảnh hóa đơn (nếu có)" value={form.invoiceImages} onChange={handleChange} style={inp} />
-              <input name="deviceImages" placeholder="Link ảnh thiết bị (nếu có)" value={form.deviceImages} onChange={handleChange} style={inp} />
+              <div>
+                <label style={{ display: 'block', fontSize: 13, color: '#991b1b', marginBottom: 4, fontWeight: 600 }}>📎 Đính kèm hóa đơn (nếu có)</label>
+                <input type="file" accept="image/*" multiple onChange={(e) => setInvoiceFiles(Array.from(e.target.files))} style={{ fontSize: 13 }} />
+                {invoiceFiles.length > 0 && <div style={{ fontSize: 12, color: '#15803d', marginTop: 4 }}>✅ {invoiceFiles.length} file đã chọn</div>}
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 13, color: '#991b1b', marginBottom: 4, fontWeight: 600 }}>📸 Đính kèm hình ảnh thiết bị</label>
+                <input type="file" accept="image/*" multiple onChange={(e) => setDeviceFiles(Array.from(e.target.files))} style={{ fontSize: 13 }} />
+                {deviceFiles.length > 0 && <div style={{ fontSize: 12, color: '#15803d', marginTop: 4 }}>✅ {deviceFiles.length} file đã chọn</div>}
+              </div>
               <button type="submit" disabled={submitting} style={{
                 padding: 12, background: submitting ? '#7f8c8d' : '#dc2626', color: 'white', border: 'none',
                 borderRadius: 8, fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer', fontSize: 16
@@ -173,7 +187,6 @@ const Buyback = () => {
           </div>
         )}
 
-        {/* Tab: Yêu cầu của tôi */}
         {activeTab === 'my' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <h2 style={{ color: '#7f1d1d' }}>📋 Yêu cầu thu cũ của tôi</h2>
@@ -207,7 +220,6 @@ const Buyback = () => {
               ))
             )}
 
-            {/* Modal chọn phương thức giao hàng */}
             {showDelivery && selectedRequest && (
               <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
                 <div style={{ background: 'white', padding: 24, borderRadius: 12, width: 500, maxWidth: '95%' }}>
@@ -246,7 +258,6 @@ const Buyback = () => {
           </div>
         )}
 
-        {/* Tab: Lịch sử thu cũ */}
         {activeTab === 'history' && (
           <div>
             <h2 style={{ color: '#7f1d1d' }}>📜 Lịch sử thu cũ</h2>
@@ -271,7 +282,6 @@ const Buyback = () => {
           </div>
         )}
 
-        {/* Chat Modal */}
         {selectedRequest && selectedRequest.messages !== undefined && activeTab === 'my' && !showDelivery && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
             <div style={{ background: 'white', borderRadius: 12, width: 450, maxWidth: '95%', padding: 0, overflow: 'hidden' }}>
@@ -307,7 +317,5 @@ const Buyback = () => {
     </div>
   );
 };
-
-const inp = { width: '100%', padding: 10, borderRadius: 8, border: '1px solid rgba(220,38,38,0.18)', outline: 'none', boxSizing: 'border-box' };
 
 export default Buyback;
