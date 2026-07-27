@@ -552,7 +552,7 @@ const AppContent = () => {
   const [navOpen, setNavOpen] = useState(false);
   const navigate = useNavigate();
   const productTypes = ['Laptop', 'Điện thoại', 'Linh kiện', 'Phụ kiện'];
-  const { getCartCount } = useCart();
+  const { getCartCount, clearCart } = useCart();
   const cartCount = getCartCount();
 
   useEffect(() => {
@@ -562,6 +562,7 @@ const AppContent = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token'); localStorage.removeItem('user');
+    clearCart(); // Xóa giỏ hàng khi đăng xuất
     setCurrentUser(null);
     setMenuOpen(false);
     navigate('/');

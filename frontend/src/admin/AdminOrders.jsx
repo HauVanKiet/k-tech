@@ -1,37 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
+  const [modal, setModal] = useState(null); // { type: 'confirm'|'cancel', index }
 
   const loadOrders = () => {
     const all = JSON.parse(localStorage.getItem('orders') || '[]');
-    // Sắp xếp mới nhất lên đầu
     setOrders([...all].reverse());
   };
 
   useEffect(() => { loadOrders(); }, []);
 
-  const handleConfirm = (index) => {
-    if (!window.confirm('Xác nhận đơn hàng này đã thanh toán?')) return;
+  const handleAction = (note) => {
     const all = JSON.parse(localStorage.getItem('orders') || '[]');
-    // index trong mảng gốc (đã reverse) -> cần tìm đúng order
-    const realIndex = all.length - 1 - index;
-    all[realIndex].status = 'Đã xác nhận';
-    all[realIndex].paymentStatus = 'success';
+    const realIndex = all.length - 1 - modal.index;
+    
+    if (modal.type === 'confirm') {
+      all[realIndex].status = 'Đã xác nhận';
+      all[realIndex].paymentStatus = 'success';
+    } else {
+      all[realIndex].status = 'Đã hủy';
+      all[realIndex].paymentStatus = 'failed';
+    }
+    all[realIndex].adminNote = note || '';
+    
     localStorage.setItem('orders', JSON.stringify(all));
+    setModal(null);
     loadOrders();
-    alert('✅ Đã xác nhận đơn hàng thành công!');
-  };
-
-  const handleCancel = (index) => {
-    if (!window.confirm('Hủy đơn hàng này?')) return;
-    const all = JSON.parse(localStorage.getItem('orders') || '[]');
-    const realIndex = all.length - 1 - index;
-    all[realIndex].status = 'Đã hủy';
-    all[realIndex].paymentStatus = 'failed';
-    localStorage.setItem('orders', JSON.stringify(all));
-    loadOrders();
-    alert('🗑️ Đã hủy đơn hàng.');
   };
 
   const getStatusBadge = (order) => {
@@ -72,8 +67,14 @@ const AdminOrders = () => {
               </div>
 
               <div style={{ fontSize: 13, color: '#7f1d1d', marginBottom: 8 }}>
-                👤 {order.userEmail} | 📞 {order.note?.split('\n')[0] || 'Không có SĐT'} | 📍 {order.address}
+                👤 {order.userEmail} | 📍 {order.address}
               </div>
+
+              {order.adminNote && (
+                <div style={{ fontSize: 12, color: '#7a4a4a', background: '#f5f5f5', padding: '6px 10px', borderRadius: 6, marginBottom: 6, fontStyle: 'italic' }}>
+                  📝 Ghi chú admin: {order.adminNote}
+                </div>
+              )}
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 8 }}>
                 {order.items.map((item, i) => (
@@ -100,10 +101,10 @@ const AdminOrders = () => {
                 <div style={{ display: 'flex', gap: 8 }}>
                   {order.status === 'Chờ thanh toán' || order.status === 'Chờ xác nhận' ? (
                     <>
-                      <button onClick={() => handleConfirm(index)} style={{ background: '#15803d', color: 'white', border: 'none', padding: '6px 14px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+                      <button onClick={() => setModal({ type: 'confirm', index })} style={{ background: '#15803d', color: 'white', border: 'none', padding: '6px 14px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
                         ✅ Xác nhận
                       </button>
-                      <button onClick={() => handleCancel(index)} style={{ background: '#dc2626', color: 'white', border: 'none', padding: '6px 14px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+                      <button onClick={() => setModal({ type: 'cancel', index })} style={{ background: '#dc2626', color: 'white', border: 'none', padding: '6px 14px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
                         🗑️ Hủy
                       </button>
                     </>
@@ -114,6 +115,48 @@ const AdminOrders = () => {
           ))}
         </div>
       )}
+
+      {/* Modal ghi chú */}
+      {modal && (
+        <NoteModal
+          type={modal.type}
+          onClose={() => setModal(null)}
+          onSubmit={handleAction}
+        />
+      )}
+    </div>
+  );
+};
+
+// Modal nhập ghi chú
+const NoteModal = ({ type, onClose, onSubmit }) => {
+  const [note, setNote] = useState('');
+  const isConfirm = type === 'confirm';
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
+      <div style={{ background: 'white', padding: 24, borderRadius: 12, width: 400, maxWidth: '90%' }}>
+        <h3 style={{ margin: '0 0 12px', color: '#7f1d1d' }}>{isConfirm ? '✅ Xác nhận đơn hàng' : '🗑️ Hủy đơn hàng'}</h3>
+        <p style={{ fontSize: 14, color: '#7a4a4a', marginBottom: 12 }}>
+          {isConfirm ? 'Ghi chú cho việc xác nhận này (không bắt buộc):' : 'Lý do hủy đơn hàng (không bắt buộc):'}
+        </p>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder={isConfirm ? 'VD: Đã kiểm tra và nhận được tiền...' : 'VD: Khách yêu cầu hủy...'}
+          rows={3}
+          style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid rgba(220,38,38,0.2)', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
+        />
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
+          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(220,38,38,0.2)', background: '#fff', color: '#7f1d1d', cursor: 'pointer' }}>Hủy</button>
+          <button onClick={() => onSubmit(note)} style={{
+            padding: '8px 16px', borderRadius: 8, border: 'none',
+            background: isConfirm ? '#15803d' : '#dc2626', color: 'white', fontWeight: 700, cursor: 'pointer'
+          }}>
+            {isConfirm ? '✅ Xác nhận' : '🗑️ Hủy đơn'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
