@@ -595,9 +595,13 @@ const AppContent = () => {
                     <Link to="/admin/products" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Quản lý sản phẩm</Link>
                     <Link to="/admin/users" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Quản lý người dùng</Link>
                     <Link to="/admin/orders" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Quản lý đơn hàng</Link>
-                    <Link to="/buyback" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Thu cũ sản phẩm</Link>
+                    <Link to="/admin/buyback" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Quản lý thu cũ</Link>
                   </>
-                ) : null}
+                ) : (
+                  <>
+                    <Link to="/buyback" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Thu cũ sản phẩm</Link>
+                  </>
+                )}
               </div>
             )}
           </div>
