@@ -622,22 +622,21 @@ const AppContent = () => {
           </div>
           <Link to="/about" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600' }}>Giới thiệu</Link>
           <Link to="/contact" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600' }}>Liên hệ</Link>
-          <Link to="/cart" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600', position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-            Giỏ hàng
-            {cartCount > 0 && (
-              <span style={{
-                position: 'absolute', top: '-8px', right: '-14px',
-                background: '#dc2626', color: 'white', fontSize: '11px',
-                width: '20px', height: '20px', borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: '800', boxShadow: '0 2px 6px rgba(220,38,38,0.4)',
-              }}>{cartCount}</span>
-            )}
-          </Link>
-          <Link to="/news" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600' }}>Tin tức</Link>
-          {!currentUser && (
-            <Link to="/login" style={{ color: '#7f1d1d', textDecoration: 'none' }}>Tài Khoản</Link>
+          {currentUser && (
+            <Link to="/cart" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600', position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+              Giỏ hàng
+              {cartCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: '-8px', right: '-14px',
+                  background: '#dc2626', color: 'white', fontSize: '11px',
+                  width: '20px', height: '20px', borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: '800', boxShadow: '0 2px 6px rgba(220,38,38,0.4)',
+                }}>{cartCount}</span>
+              )}
+            </Link>
           )}
+          <Link to="/news" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600' }}>Tin tức</Link>
           
           <div style={{ marginLeft: 'auto', position: 'relative' }}>
             {currentUser ? (
