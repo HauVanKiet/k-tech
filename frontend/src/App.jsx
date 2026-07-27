@@ -593,7 +593,7 @@ const AppContent = () => {
                   <>
                     <Link to="/admin/products" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Quản lý sản phẩm</Link>
                     <Link to="/admin/users" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Quản lý người dùng</Link>
-                    <Link to="/admin/orders" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>📋 Quản lý đơn hàng</Link>
+                    <Link to="/admin/orders" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Quản lý đơn hàng</Link>
                     <Link to="/admin/buyback" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Quản lý thu cũ</Link>
                   </>
                 ) : null}
@@ -651,7 +651,7 @@ const AppContent = () => {
                 </button>
                 {menuOpen && (
                   <div style={{ position: 'absolute', right: 0, top: '50px', background: '#fff', color: '#222', borderRadius: '10px', minWidth: '180px', boxShadow: '0 10px 24px rgba(0,0,0,0.2)', zIndex: 1000 }}>
-                    <Link to="/orders" onClick={() => setMenuOpen(false)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 12px', textDecoration: 'none', color: '#111' }}>📋 Lịch sử đặt hàng</Link>
+                    <Link to="/orders" onClick={() => setMenuOpen(false)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 12px', textDecoration: 'none', color: '#111' }}>Lịch sử đặt hàng</Link>
                     <Link to="/profile" onClick={() => setMenuOpen(false)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 12px', textDecoration: 'none', color: '#111' }}>Thông tin cá nhân</Link>
                     <button onClick={() => setMenuOpen(false)} style={{ width: '100%', textAlign: 'left', padding: '10px 12px', border: 'none', background: 'white', cursor: 'pointer' }}>Cài đặt</button>
                     <button onClick={handleLogout} style={{ width: '100%', textAlign: 'left', padding: '10px 12px', border: 'none', background: 'white', cursor: 'pointer', color: '#dc2626' }}>Đăng xuất</button>
