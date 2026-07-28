@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const BuyBack = require('../models/BuyBack');
+const BuyBack = require('../models/Buyback');
 const jwt = require('jsonwebtoken');
 const { v2: cloudinary } = require('cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
