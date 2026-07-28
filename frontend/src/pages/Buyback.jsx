@@ -53,12 +53,12 @@ const Buyback = () => {
       formData.append('deviceType', form.deviceType);
       formData.append('exteriorCondition', form.exteriorCondition);
       formData.append('deviceCondition', form.deviceCondition);
-      formData.append('desiredPrice', form.desiredPrice || '0');
+      formData.append('desiredPrice', Number(form.desiredPrice) || 0);
       invoiceFiles.forEach(f => formData.append('invoiceImages', f));
       deviceFiles.forEach(f => formData.append('deviceImages', f));
 
       const res = await axios.post(`${API_BASE_URL}/api/buyback/request`, formData, {
-        headers: { ...headers, 'Content-Type': 'multipart/form-data' }
+        headers: { Authorization: `Bearer ${token}` }
       });
       alert('✅ ' + res.data.message);
       setForm({ ...form, deviceInfo: '', desiredPrice: '' });
@@ -66,7 +66,10 @@ const Buyback = () => {
       setDeviceFiles([]);
       fetchRequests();
       setActiveTab('my');
-    } catch (err) { alert('❌ ' + (err.response?.data?.error || err.message)); }
+    } catch (err) {
+      const msg = err.response?.data?.error || err.response?.data?.message || err.message;
+      alert('❌ ' + msg);
+    }
     finally { setSubmitting(false); }
   };
 
