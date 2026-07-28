@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
 
+const MAX_IMG_SIZE = 500 * 1024; // 500KB mỗi ảnh
+const MAX_IMG_DIM = 800; // resize xuống tối đa 800px
+
 const Buyback = () => {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const token = localStorage.getItem('token');
@@ -38,10 +41,27 @@ const Buyback = () => {
     if (user && token) fetchRequests();
   }, [user, token]);
 
-  const toBase64 = (file) => new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.readAsDataURL(file);
+  // Nén ảnh: resize xuống max 800px, convert sang JPEG quality 0.7
+  const compressImage = (file) => new Promise((resolve, reject) => {
+    if (file.size > MAX_IMG_SIZE) {
+      reject(`Ảnh quá lớn! Vui lòng chọn ảnh dưới 500KB.`);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > MAX_IMG_DIM || h > MAX_IMG_DIM) {
+        const ratio = Math.min(MAX_IMG_DIM / w, MAX_IMG_DIM / h);
+        w *= ratio; h *= ratio;
+      }
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.onerror = () => reject('Không thể đọc ảnh');
+    img.src = URL.createObjectURL(file);
   });
 
   const handleSubmit = async (e) => {
@@ -51,12 +71,19 @@ const Buyback = () => {
     try {
       const img1 = document.getElementById('buyback-invoice');
       const img2 = document.getElementById('buyback-device');
-      const invoiceUrls = img1?.files?.length > 0 ? await Promise.all(Array.from(img1.files).map(toBase64)) : [];
-      const deviceUrls = img2?.files?.length > 0 ? await Promise.all(Array.from(img2.files).map(toBase64)) : [];
+      
+      const invoiceFiles = img1?.files ? Array.from(img1.files) : [];
+      const deviceFiles = img2?.files ? Array.from(img2.files) : [];
+
+      if (invoiceFiles.length + deviceFiles.length > 5) { alert('Tổng số ảnh không quá 5 file'); setSubmitting(false); return; }
+
+      const invoiceUrls = await Promise.all(invoiceFiles.map(f => compressImage(f).catch(() => null)));
+      const deviceUrls = await Promise.all(deviceFiles.map(f => compressImage(f).catch(() => null)));
 
       const res = await axios.post(`${API_BASE_URL}/api/buyback/request`, {
         ...form, desiredPrice: Number(form.desiredPrice) || 0,
-        invoiceImages: invoiceUrls, deviceImages: deviceUrls
+        invoiceImages: invoiceUrls.filter(Boolean),
+        deviceImages: deviceUrls.filter(Boolean)
       }, { headers });
       alert('✅ ' + res.data.message);
       setForm({ ...form, deviceInfo: '', desiredPrice: '' });
@@ -146,7 +173,7 @@ const Buyback = () => {
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid rgba(220,38,38,0.1)' }}>
             <h2 style={{ color: '#7f1d1d', marginBottom: 16 }}>📝 Tạo yêu cầu thu cũ</h2>
             <p style={{ fontSize: 13, color: '#7a4a4a', marginBottom: 12 }}>
-              {'⚠️'} Lưu ý: Ảnh sẽ được gửi dạng base64, vui lòng chọn ảnh có dung lượng nhỏ ({'<'}5MB/ảnh).
+              ⚠️ Ảnh sẽ được nén tự động. Giới hạn: tối đa 5 ảnh, mỗi ảnh {'<'}500KB.
             </p>
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
