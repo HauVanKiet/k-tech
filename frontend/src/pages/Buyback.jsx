@@ -17,8 +17,6 @@ const Buyback = () => {
     deviceInfo: '', deviceType: 'Laptop', exteriorCondition: 'Tốt',
     deviceCondition: 'Hoạt động tốt', desiredPrice: ''
   });
-  const [invoiceFiles, setInvoiceFiles] = useState([]);
-  const [deviceFiles, setDeviceFiles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
   const [deliveryForm, setDeliveryForm] = useState({
@@ -40,36 +38,33 @@ const Buyback = () => {
     if (user && token) fetchRequests();
   }, [user, token]);
 
+  const toBase64 = (file) => new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.fullName || !form.phone || !form.deviceInfo) { alert('Vui lòng điền đầy đủ thông tin'); return; }
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append('fullName', form.fullName);
-      formData.append('phone', form.phone);
-      formData.append('address', form.address);
-      formData.append('deviceInfo', form.deviceInfo);
-      formData.append('deviceType', form.deviceType);
-      formData.append('exteriorCondition', form.exteriorCondition);
-      formData.append('deviceCondition', form.deviceCondition);
-      formData.append('desiredPrice', Number(form.desiredPrice) || 0);
-      invoiceFiles.forEach(f => formData.append('invoiceImages', f));
-      deviceFiles.forEach(f => formData.append('deviceImages', f));
+      const img1 = document.getElementById('buyback-invoice');
+      const img2 = document.getElementById('buyback-device');
+      const invoiceUrls = img1?.files?.length > 0 ? await Promise.all(Array.from(img1.files).map(toBase64)) : [];
+      const deviceUrls = img2?.files?.length > 0 ? await Promise.all(Array.from(img2.files).map(toBase64)) : [];
 
-      const res = await axios.post(`${API_BASE_URL}/api/buyback/request`, formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await axios.post(`${API_BASE_URL}/api/buyback/request`, {
+        ...form, desiredPrice: Number(form.desiredPrice) || 0,
+        invoiceImages: invoiceUrls, deviceImages: deviceUrls
+      }, { headers });
       alert('✅ ' + res.data.message);
       setForm({ ...form, deviceInfo: '', desiredPrice: '' });
-      setInvoiceFiles([]);
-      setDeviceFiles([]);
+      if (img1) img1.value = '';
+      if (img2) img2.value = '';
       fetchRequests();
       setActiveTab('my');
-    } catch (err) {
-      const msg = err.response?.data?.error || err.response?.data?.message || err.message;
-      alert('❌ ' + msg);
-    }
+    } catch (err) { alert('❌ ' + (err.response?.data?.error || err.message)); }
     finally { setSubmitting(false); }
   };
 
@@ -93,9 +88,7 @@ const Buyback = () => {
     if (!deliveryForm.deliveryName || !deliveryForm.deliveryPhone) { alert('Nhập thông tin giao hàng'); return; }
     try {
       await axios.put(`${API_BASE_URL}/api/buyback/user/shipping/${selectedRequest._id}`, deliveryForm, { headers });
-      setShowDelivery(false);
-      setSelectedRequest(null);
-      fetchRequests();
+      setShowDelivery(false); setSelectedRequest(null); fetchRequests();
       alert('✅ Đã gửi thông tin giao hàng!');
     } catch (err) { alert('❌ ' + (err.response?.data?.error || err.message)); }
   };
@@ -104,8 +97,7 @@ const Buyback = () => {
     if (!chatMsg.trim()) return;
     try {
       await axios.post(`${API_BASE_URL}/api/buyback/chat/${reqId}`, { text: chatMsg }, { headers });
-      setChatMsg('');
-      fetchChat(reqId);
+      setChatMsg(''); fetchChat(reqId);
     } catch (err) { alert('Lỗi gửi tin nhắn'); }
   };
 
@@ -116,10 +108,7 @@ const Buyback = () => {
     } catch (err) {}
   };
 
-  const openChat = (req) => {
-    setSelectedRequest(req);
-    fetchChat(req._id);
-  };
+  const openChat = (req) => { setSelectedRequest(req); fetchChat(req._id); };
 
   const getStatusBadge = (r) => {
     if (r.status === 'pending') return <span style={{ background: '#fef3c7', color: '#b45309', padding: '4px 10px', borderRadius: 999, fontWeight: 700, fontSize: 12 }}>⏳ Chờ định giá</span>;
@@ -156,6 +145,9 @@ const Buyback = () => {
         {activeTab === 'create' && (
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid rgba(220,38,38,0.1)' }}>
             <h2 style={{ color: '#7f1d1d', marginBottom: 16 }}>📝 Tạo yêu cầu thu cũ</h2>
+            <p style={{ fontSize: 13, color: '#7a4a4a', marginBottom: 12 }}>
+              {'⚠️'} Lưu ý: Ảnh sẽ được gửi dạng base64, vui lòng chọn ảnh có dung lượng nhỏ ({'<'}5MB/ảnh).
+            </p>
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <input name="fullName" placeholder="Họ tên *" value={form.fullName} onChange={handleChange} required style={inp} />
@@ -177,13 +169,11 @@ const Buyback = () => {
               <input name="desiredPrice" type="number" placeholder="Mức giá mong muốn (VNĐ)" value={form.desiredPrice} onChange={handleChange} style={inp} />
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: '#991b1b', marginBottom: 4, fontWeight: 600 }}>📎 Đính kèm hóa đơn (nếu có)</label>
-                <input type="file" accept="image/*" multiple onChange={(e) => setInvoiceFiles(Array.from(e.target.files))} style={{ fontSize: 13 }} />
-                {invoiceFiles.length > 0 && <div style={{ fontSize: 12, color: '#15803d', marginTop: 4 }}>✅ {invoiceFiles.length} file đã chọn</div>}
+                <input id="buyback-invoice" type="file" accept="image/*" multiple style={{ fontSize: 13 }} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: '#991b1b', marginBottom: 4, fontWeight: 600 }}>📸 Đính kèm hình ảnh thiết bị</label>
-                <input type="file" accept="image/*" multiple onChange={(e) => setDeviceFiles(Array.from(e.target.files))} style={{ fontSize: 13 }} />
-                {deviceFiles.length > 0 && <div style={{ fontSize: 12, color: '#15803d', marginTop: 4 }}>✅ {deviceFiles.length} file đã chọn</div>}
+                <input id="buyback-device" type="file" accept="image/*" multiple style={{ fontSize: 13 }} />
               </div>
               <button type="submit" disabled={submitting} style={{
                 padding: 12, background: submitting ? '#7f8c8d' : '#dc2626', color: 'white', border: 'none',

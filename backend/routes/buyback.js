@@ -2,18 +2,6 @@ const express = require('express');
 const router = express.Router();
 const BuyBack = require('../models/Buyback');
 const jwt = require('jsonwebtoken');
-const { v2: cloudinary } = require('cloudinary');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const multer = require('multer');
-
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: 'K_Tech_Buyback',
-        allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-    },
-});
-const upload = multer({ storage: storage });
 
 const authMiddleware = (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1];
@@ -25,27 +13,31 @@ const authMiddleware = (req, res, next) => {
     } catch (err) { res.status(400).json({ message: "Token không hợp lệ" }); }
 };
 
-// 1. USER gửi yêu cầu thu cũ (có upload ảnh qua Cloudinary)
-router.post('/request', authMiddleware, upload.fields([
-    { name: 'invoiceImages', maxCount: 5 },
-    { name: 'deviceImages', maxCount: 8 }
-]), async (req, res) => {
+// 1. USER gửi yêu cầu thu cũ (không upload file, dùng link ảnh)
+router.post('/request', authMiddleware, async (req, res) => {
     try {
-        const { fullName, phone, address, deviceInfo, deviceType, exteriorCondition, deviceCondition, desiredPrice } = req.body;
+        const { fullName, phone, address, deviceInfo, deviceType, exteriorCondition, deviceCondition, desiredPrice, invoiceImages, deviceImages } = req.body;
         
-        const invoiceUrls = req.files?.invoiceImages ? req.files.invoiceImages.map(f => f.path) : [];
-        const deviceUrls = req.files?.deviceImages ? req.files.deviceImages.map(f => f.path) : [];
+        if (!fullName || !phone || !deviceInfo) {
+            return res.status(400).json({ error: "Vui lòng điền đầy đủ thông tin bắt buộc" });
+        }
 
         const newRequest = new BuyBack({
             user_id: req.user.id,
-            fullName, phone, address, deviceInfo, deviceType,
-            exteriorCondition, deviceCondition, desiredPrice: Number(desiredPrice) || 0,
-            invoiceImages: invoiceUrls,
-            deviceImages: deviceUrls
+            fullName, phone, address: address || '',
+            deviceInfo, deviceType: deviceType || 'Laptop',
+            exteriorCondition: exteriorCondition || 'Tốt',
+            deviceCondition: deviceCondition || 'Hoạt động tốt',
+            desiredPrice: Number(desiredPrice) || 0,
+            invoiceImages: invoiceImages || [],
+            deviceImages: deviceImages || []
         });
         await newRequest.save();
         res.status(201).json({ message: "Gửi yêu cầu thu cũ thành công!", data: newRequest });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) { 
+        console.error("Lỗi tạo yêu cầu thu cũ:", err);
+        res.status(500).json({ error: err.message }); 
+    }
 });
 
 // 2. USER xem yêu cầu của mình
