@@ -13,7 +13,7 @@ const authMiddleware = (req, res, next) => {
     } catch (err) { res.status(400).json({ message: "Token không hợp lệ" }); }
 };
 
-// 1. USER gửi yêu cầu thu cũ (không upload file, dùng link ảnh)
+// USER gửi yêu cầu thu cũ (dùng JSON, ảnh base64)
 router.post('/request', authMiddleware, async (req, res) => {
     try {
         const { fullName, phone, address, deviceInfo, deviceType, exteriorCondition, deviceCondition, desiredPrice, invoiceImages, deviceImages } = req.body;
@@ -40,7 +40,6 @@ router.post('/request', authMiddleware, async (req, res) => {
     }
 });
 
-// 2. USER xem yêu cầu của mình
 router.get('/my-requests', authMiddleware, async (req, res) => {
     try {
         const requests = await BuyBack.find({ user_id: req.user.id }).sort({ createdAt: -1 });
@@ -48,7 +47,6 @@ router.get('/my-requests', authMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 3. ADMIN xem tất cả
 router.get('/admin/all', authMiddleware, async (req, res) => {
     if (req.user.role !== 'admin') return res.status(403).json({ message: "Từ chối quyền truy cập" });
     try {
@@ -57,7 +55,6 @@ router.get('/admin/all', authMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 4. ADMIN định giá
 router.put('/admin/price/:id', authMiddleware, async (req, res) => {
     if (req.user.role !== 'admin') return res.status(403).json({ message: "Từ chối" });
     try {
@@ -67,7 +64,6 @@ router.put('/admin/price/:id', authMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 5. USER phản hồi (chấp nhận/từ chối giá)
 router.put('/user/respond/:id', authMiddleware, async (req, res) => {
     try {
         const { action } = req.body;
@@ -78,7 +74,6 @@ router.put('/user/respond/:id', authMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 6. USER chọn phương thức giao hàng
 router.put('/user/shipping/:id', authMiddleware, async (req, res) => {
     try {
         const { shippingMethod, deliveryName, deliveryPhone, deliveryAddress } = req.body;
@@ -91,7 +86,6 @@ router.put('/user/shipping/:id', authMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 7. ADMIN cập nhật trạng thái
 router.put('/admin/status/:id', authMiddleware, async (req, res) => {
     if (req.user.role !== 'admin') return res.status(403).json({ message: "Từ chối" });
     try {
@@ -104,7 +98,6 @@ router.put('/admin/status/:id', authMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 8. Chat: gửi tin nhắn
 router.post('/chat/:id', authMiddleware, async (req, res) => {
     try {
         const { text } = req.body;
@@ -117,7 +110,6 @@ router.post('/chat/:id', authMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 9. Chat: lấy tin nhắn
 router.get('/chat/:id', authMiddleware, async (req, res) => {
     try {
         const request = await BuyBack.findById(req.params.id);
