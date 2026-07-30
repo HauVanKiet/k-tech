@@ -160,8 +160,8 @@ const AdminBuyback = () => {
       {/* Modal chi tiết + định giá */}
       {selectedRequest && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
-          <div style={{ background: 'white', borderRadius: 12, width: 700, maxWidth: '95%', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '14px 16px', background: '#dc2626', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ background: 'white', borderRadius: 12, width: 700, maxWidth: '95%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div style={{ padding: '14px 16px', background: '#dc2626', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
               <span style={{ fontWeight: 700 }}>📋 Chi tiết yêu cầu thu cũ</span>
               <button onClick={() => setSelectedRequest(null)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: 20 }}>×</button>
             </div>
@@ -234,31 +234,13 @@ const AdminBuyback = () => {
                 </div>
               )}
 
-              {/* Chat */}
-              <div style={{ border: '1px solid #eee', borderRadius: 8, overflow: 'hidden' }}>
-                <div style={{ padding: '10px 12px', background: '#f1f5f9', fontWeight: 700, color: '#1e293b', fontSize: 14 }}>💬 Chat với khách hàng</div>
-                <div style={{ padding: 12, height: 200, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {(!selectedRequest.messages || selectedRequest.messages.length === 0) ? (
-                    <div style={{ textAlign: 'center', color: '#aaa', marginTop: 40 }}>Chưa có tin nhắn</div>
-                  ) : selectedRequest.messages.map((msg, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: msg.sender === 'admin' ? 'flex-end' : 'flex-start' }}>
-                      <div style={{
-                        background: msg.sender === 'admin' ? '#dc2626' : '#f1f5f9',
-                        color: msg.sender === 'admin' ? 'white' : '#1e293b',
-                        padding: '8px 14px', borderRadius: 12, maxWidth: '80%', fontSize: 14
-                      }}>
-                        <div>{msg.text}</div>
-                        <div style={{ fontSize: 11, opacity: 0.6, marginTop: 4 }}>{new Date(msg.createdAt).toLocaleTimeString('vi-VN')}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ padding: '10px 12px', borderTop: '1px solid #eee', display: 'flex', gap: 8 }}>
-                  <input value={chatMsg} onChange={(e) => setChatMsg(e.target.value)} placeholder="Nhập tin nhắn..." style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #ddd', outline: 'none' }}
-                    onKeyDown={(e) => e.key === 'Enter' && sendChat(selectedRequest._id)} />
-                  <button onClick={() => sendChat(selectedRequest._id)} style={{ background: '#dc2626', color: 'white', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 700, cursor: 'pointer' }}>Gửi</button>
-                </div>
-              </div>
+            </div>
+
+            {/* Chat input - fixed bottom */}
+            <div style={{ padding: '10px 16px', borderTop: '1px solid #eee', display: 'flex', gap: 8, background: '#fff', flexShrink: 0 }}>
+              <input value={chatMsg} onChange={(e) => setChatMsg(e.target.value)} placeholder="Nhập tin nhắn..." style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #ddd', outline: 'none' }}
+                onKeyDown={(e) => e.key === 'Enter' && sendChat(selectedRequest._id)} />
+              <button onClick={() => sendChat(selectedRequest._id)} style={{ background: '#dc2626', color: 'white', border: 'none', borderRadius: 8, padding: '8px 20px', fontWeight: 700, cursor: 'pointer' }}>Gửi</button>
             </div>
           </div>
         </div>
