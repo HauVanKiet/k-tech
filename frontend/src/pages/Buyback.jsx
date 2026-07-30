@@ -134,6 +134,7 @@ const Buyback = () => {
           { key: 'create', label: 'Tạo yêu cầu thu cũ' },
           { key: 'my', label: 'Yêu cầu của tôi' },
           { key: 'history', label: 'Lịch sử thu cũ' },
+          { key: 'messages', label: 'Tin nhắn' },
         ].map(tab => (
           <div key={tab.key} onClick={() => { setActiveTab(tab.key); setShowDelivery(false); setSelectedRequest(null); }}
             style={{ padding: '10px 12px', borderRadius: 8, cursor: 'pointer', fontWeight: activeTab === tab.key ? 700 : 500,
@@ -280,7 +281,46 @@ const Buyback = () => {
           </div>
         )}
 
-        {selectedRequest && selectedRequest.messages !== undefined && activeTab === 'my' && !showDelivery && (
+        {/* Tab: Tin nhắn */}
+        {activeTab === 'messages' && (
+          <div>
+            <h2 style={{ color: '#7f1d1d' }}>💬 Tin nhắn</h2>
+            {requests.filter(r => r.messages && r.messages.length > 0).length === 0 ? (
+              <p style={{ color: '#991b1b' }}>Chưa có tin nhắn nào.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {requests.filter(r => r.messages && r.messages.length > 0).map(r => {
+                  const lastMsg = r.messages[r.messages.length - 1];
+                  const unread = r.messages.filter(m => m.sender === 'admin').length;
+                  return (
+                    <div key={r._id} onClick={() => { setSelectedRequest(r); fetchChat(r._id); }}
+                      style={{
+                        background: '#fff', borderRadius: 12, padding: 16, cursor: 'pointer',
+                        border: selectedRequest?._id === r._id ? '2px solid #dc2626' : '1px solid rgba(220,38,38,0.1)',
+                        display: 'flex', gap: 12, alignItems: 'center'
+                      }}>
+                      <div style={{
+                        width: 44, height: 44, borderRadius: '50%', background: '#fee2e2',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 20, flexShrink: 0
+                      }}>💬</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, color: '#7f1d1d', fontSize: 14, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.deviceInfo}</div>
+                        <div style={{ color: '#7a4a4a', fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lastMsg?.text || 'Chưa có nội dung'}</div>
+                        <div style={{ color: '#991b1b', fontSize: 11, marginTop: 2 }}>{new Date(lastMsg?.createdAt || r.createdAt).toLocaleString('vi-VN')}</div>
+                      </div>
+                      {unread > 0 && (
+                        <span style={{ background: '#dc2626', color: 'white', borderRadius: 999, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{unread}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {selectedRequest && selectedRequest.messages !== undefined && (activeTab === 'my' || activeTab === 'messages') && !showDelivery && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
             <div style={{ background: 'white', borderRadius: 12, width: 450, maxWidth: '95%', padding: 0, overflow: 'hidden' }}>
               <div style={{ padding: '14px 16px', background: '#dc2626', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
