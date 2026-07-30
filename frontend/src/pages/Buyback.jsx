@@ -39,7 +39,7 @@ const Buyback = () => {
   }, [user, token]);
 
   const toBase64 = (file) => new Promise((resolve, reject) => {
-    if (file.size > 2 * 1024 * 1024) { reject('File quá lớn (>2MB)'); return; }
+    if (file.size > 500 * 1024) { reject('File quá lớn (>500KB)'); return; }
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
     reader.onerror = () => reject('Lỗi đọc file');
@@ -148,7 +148,7 @@ const Buyback = () => {
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid rgba(220,38,38,0.1)' }}>
             <h2 style={{ color: '#7f1d1d', marginBottom: 16 }}>📝 Tạo yêu cầu thu cũ</h2>
             <p style={{ fontSize: 13, color: '#7a4a4a', marginBottom: 12 }}>
-              ⚠️ Ảnh gửi dạng base64, giới hạn {'<'}2MB/ảnh. Không chọn ảnh vẫn gửi được.
+              ⚠️ Ảnh gửi dạng base64, giới hạn {'<'}500KB/ảnh. Không chọn ảnh vẫn gửi được.
             </p>
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
