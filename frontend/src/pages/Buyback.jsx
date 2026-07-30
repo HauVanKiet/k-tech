@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
+import { formatPriceInput } from '../utils';
 
 const Buyback = () => {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -17,6 +18,7 @@ const Buyback = () => {
     deviceInfo: '', deviceType: 'Laptop', exteriorCondition: 'Tốt',
     deviceCondition: 'Hoạt động tốt', desiredPrice: ''
   });
+  const [displayDesired, setDisplayDesired] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const [deliveryForm, setDeliveryForm] = useState({
@@ -24,7 +26,14 @@ const Buyback = () => {
   });
   const [showDelivery, setShowDelivery] = useState(false);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    if (e.target.name === 'desiredPrice') {
+      setDisplayDesired(formatPriceInput(e.target.value));
+      setForm({ ...form, desiredPrice: e.target.value.replace(/[^0-9]/g, '') });
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
+  };
   const handleDeliveryChange = (e) => setDeliveryForm({ ...deliveryForm, [e.target.name]: e.target.value });
 
   const fetchRequests = async () => {
@@ -66,6 +75,7 @@ const Buyback = () => {
       }, { headers });
       alert('✅ ' + res.data.message);
       setForm({ ...form, deviceInfo: '', desiredPrice: '' });
+      setDisplayDesired('');
       if (img1) img1.value = '';
       if (img2) img2.value = '';
       fetchRequests();
@@ -77,11 +87,8 @@ const Buyback = () => {
   const handleRespond = async (id, action) => {
     try {
       const res = await axios.put(`${API_BASE_URL}/api/buyback/user/respond/${id}`, { action }, { headers });
-      if (action === 'accept') {
-        setSelectedRequest(res.data.data);
-        setShowDelivery(true);
-        setDeliveryForm({ ...deliveryForm, shippingMethod: '' });
-      } else { alert(res.data.message); fetchRequests(); }
+      if (action === 'accept') { setSelectedRequest(res.data.data); setShowDelivery(true); setDeliveryForm({ ...deliveryForm, shippingMethod: '' }); }
+      else { alert(res.data.message); fetchRequests(); }
     } catch (err) { alert('❌ ' + (err.response?.data?.error || err.message)); }
   };
 
@@ -130,12 +137,7 @@ const Buyback = () => {
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px', display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, minHeight: '80vh', color: '#5b1616' }}>
       <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid rgba(220,38,38,0.1)', height: 'fit-content', position: 'sticky', top: 24 }}>
         <h3 style={{ color: '#7f1d1d', margin: '0 0 16px', fontSize: 16 }}>📦 Thu cũ sản phẩm</h3>
-        {[
-          { key: 'create', label: 'Tạo yêu cầu thu cũ' },
-          { key: 'my', label: 'Yêu cầu của tôi' },
-          { key: 'history', label: 'Lịch sử thu cũ' },
-          { key: 'messages', label: 'Tin nhắn' },
-        ].map(tab => (
+        {[{ key: 'create', label: 'Tạo yêu cầu thu cũ' },{ key: 'my', label: 'Yêu cầu của tôi' },{ key: 'history', label: 'Lịch sử thu cũ' },{ key: 'messages', label: 'Tin nhắn' }].map(tab => (
           <div key={tab.key} onClick={() => { setActiveTab(tab.key); setShowDelivery(false); setSelectedRequest(null); }}
             style={{ padding: '10px 12px', borderRadius: 8, cursor: 'pointer', fontWeight: activeTab === tab.key ? 700 : 500,
               background: activeTab === tab.key ? '#fef2f2' : 'transparent', color: activeTab === tab.key ? '#dc2626' : '#7f1d1d', marginBottom: 4 }}>
@@ -148,9 +150,7 @@ const Buyback = () => {
         {activeTab === 'create' && (
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid rgba(220,38,38,0.1)' }}>
             <h2 style={{ color: '#7f1d1d', marginBottom: 16 }}>📝 Tạo yêu cầu thu cũ</h2>
-            <p style={{ fontSize: 13, color: '#7a4a4a', marginBottom: 12 }}>
-              ⚠️ Ảnh gửi dạng base64, giới hạn {'<'}500KB/ảnh. Không chọn ảnh vẫn gửi được.
-            </p>
+            <p style={{ fontSize: 13, color: '#7a4a4a', marginBottom: 12 }}>⚠️ Ảnh gửi dạng base64, giới hạn {'<'}500KB/ảnh.</p>
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <input name="fullName" placeholder="Họ tên *" value={form.fullName} onChange={handleChange} required style={inp} />
@@ -169,7 +169,7 @@ const Buyback = () => {
                   <option>Hoạt động tốt</option><option>Hoạt động bình thường</option><option>Lỗi nhẹ</option><option>Lỗi nặng</option><option>Không hoạt động</option>
                 </select>
               </div>
-              <input name="desiredPrice" type="number" placeholder="Mức giá mong muốn (VNĐ)" value={form.desiredPrice} onChange={handleChange} style={inp} />
+              <input name="desiredPrice" placeholder="Mức giá mong muốn (VNĐ) - tự động format" value={displayDesired} onChange={handleChange} style={inp} />
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: '#991b1b', marginBottom: 4, fontWeight: 600 }}>📎 Đính kèm hóa đơn (nếu có)</label>
                 <input id="buyback-invoice" type="file" accept="image/*" multiple style={{ fontSize: 13 }} />
@@ -218,18 +218,13 @@ const Buyback = () => {
                 </div>
               ))
             )}
-
             {showDelivery && selectedRequest && (
               <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
                 <div style={{ background: 'white', padding: 24, borderRadius: 12, width: 500, maxWidth: '95%' }}>
                   <h3 style={{ color: '#7f1d1d', marginBottom: 12 }}>📦 Chọn phương thức giao hàng</h3>
                   <form onSubmit={handleShippingSubmit} style={{ display: 'grid', gap: 12 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {[
-                        { value: 'store', label: 'Gửi máy tại cửa hàng', note: 'Mang thiết bị đến cửa hàng K_Tech để kiểm tra.' },
-                        { value: 'shipping', label: 'Gửi qua chuyển phát', note: '⚠️ Vui lòng quay video đóng gói hàng và đính kèm ảnh trước/sau đóng gói.' },
-                        { value: 'home', label: 'Thu tại nhà', note: '📍 Chỉ áp dụng tại TP.HCM. Phí di chuyển tính thêm nếu khoảng cách ≥ 10km.' },
-                      ].map(opt => (
+                      {[{ value: 'store', label: 'Gửi máy tại cửa hàng', note: 'Mang thiết bị đến cửa hàng K_Tech để kiểm tra.' },{ value: 'shipping', label: 'Gửi qua chuyển phát', note: '⚠️ Vui lòng quay video đóng gói hàng và đính kèm ảnh trước/sau đóng gói.' },{ value: 'home', label: 'Thu tại nhà', note: '📍 Chỉ áp dụng tại TP.HCM. Phí di chuyển tính thêm nếu khoảng cách ≥ 10km.' }].map(opt => (
                         <label key={opt.value} onClick={() => setDeliveryForm({ ...deliveryForm, shippingMethod: opt.value })}
                           style={{ display: 'block', padding: 12, borderRadius: 8, border: deliveryForm.shippingMethod === opt.value ? '2px solid #dc2626' : '1px solid rgba(220,38,38,0.15)', cursor: 'pointer', background: deliveryForm.shippingMethod === opt.value ? '#fff5f5' : '#fff' }}>
                           <div style={{ fontWeight: 700, color: '#7f1d1d', marginBottom: 4 }}>{opt.label}</div>
@@ -281,7 +276,6 @@ const Buyback = () => {
           </div>
         )}
 
-        {/* Tab: Tin nhắn */}
         {activeTab === 'messages' && (
           <div>
             <h2 style={{ color: '#7f1d1d' }}>💬 Tin nhắn</h2>
@@ -294,24 +288,14 @@ const Buyback = () => {
                   const unread = r.messages.filter(m => m.sender === 'admin').length;
                   return (
                     <div key={r._id} onClick={() => { setSelectedRequest(r); fetchChat(r._id); }}
-                      style={{
-                        background: '#fff', borderRadius: 12, padding: 16, cursor: 'pointer',
-                        border: selectedRequest?._id === r._id ? '2px solid #dc2626' : '1px solid rgba(220,38,38,0.1)',
-                        display: 'flex', gap: 12, alignItems: 'center'
-                      }}>
-                      <div style={{
-                        width: 44, height: 44, borderRadius: '50%', background: '#fee2e2',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 20, flexShrink: 0
-                      }}>💬</div>
+                      style={{ background: '#fff', borderRadius: 12, padding: 16, cursor: 'pointer', border: selectedRequest?._id === r._id ? '2px solid #dc2626' : '1px solid rgba(220,38,38,0.1)', display: 'flex', gap: 12, alignItems: 'center' }}>
+                      <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>💬</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontWeight: 700, color: '#7f1d1d', fontSize: 14, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.deviceInfo}</div>
-                        <div style={{ color: '#7a4a4a', fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lastMsg?.text || 'Chưa có nội dung'}</div>
+                        <div style={{ color: '#7a4a4a', fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lastMsg?.text || ''}</div>
                         <div style={{ color: '#991b1b', fontSize: 11, marginTop: 2 }}>{new Date(lastMsg?.createdAt || r.createdAt).toLocaleString('vi-VN')}</div>
                       </div>
-                      {unread > 0 && (
-                        <span style={{ background: '#dc2626', color: 'white', borderRadius: 999, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{unread}</span>
-                      )}
+                      {unread > 0 && <span style={{ background: '#dc2626', color: 'white', borderRadius: 999, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{unread}</span>}
                     </div>
                   );
                 })}
