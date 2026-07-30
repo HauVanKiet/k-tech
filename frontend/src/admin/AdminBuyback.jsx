@@ -9,6 +9,7 @@ const AdminBuyback = () => {
   const [priceInput, setPriceInput] = useState('');
   const [noteInput, setNoteInput] = useState('');
   const [chatMsg, setChatMsg] = useState('');
+  const [activeSubTab, setActiveSubTab] = useState('all');
   const token = localStorage.getItem('token');
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -88,9 +89,52 @@ const AdminBuyback = () => {
       <h2 style={{ color: '#b91c1c', marginBottom: 8 }}>📋 Quản lý thu cũ</h2>
       <p style={{ color: '#7f1d1d', marginBottom: 20, fontSize: 14 }}>Xem, định giá và quản lý yêu cầu thu cũ từ khách hàng.</p>
 
-      {requests.length === 0 ? (
+      {/* Tab con */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        {['all', 'messages'].map(tab => (
+          <button key={tab} onClick={() => { setActiveSubTab(tab); setSelectedRequest(null); }}
+            style={{
+              padding: '8px 16px', borderRadius: 999, border: activeSubTab === tab ? '2px solid #dc2626' : '1px solid rgba(220,38,38,0.2)',
+              background: activeSubTab === tab ? '#fff5f5' : '#fff', color: '#7f1d1d', fontWeight: activeSubTab === tab ? 700 : 600,
+              cursor: 'pointer', fontSize: 14
+            }}>
+            {tab === 'all' ? '📋 Tất cả yêu cầu' : '💬 Tin nhắn'}
+          </button>
+        ))}
+      </div>
+
+      {activeSubTab === 'messages' && (
+        <div style={{ marginBottom: 16 }}>
+          {requests.filter(r => r.messages && r.messages.length > 0).length === 0 ? (
+            <p style={{ color: '#991b1b' }}>Chưa có tin nhắn nào.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {requests.filter(r => r.messages && r.messages.length > 0).map(r => {
+                const lastMsg = r.messages[r.messages.length - 1];
+                return (
+                  <div key={r._id} onClick={() => { openDetail(r); }}
+                    style={{
+                      background: '#fff', borderRadius: 12, padding: 14, cursor: 'pointer',
+                      border: selectedRequest?._id === r._id ? '2px solid #dc2626' : '1px solid rgba(220,38,38,0.1)',
+                      display: 'flex', gap: 12, alignItems: 'center'
+                    }}>
+                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>💬</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 700, color: '#7f1d1d', fontSize: 14, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.deviceInfo}</div>
+                      <div style={{ color: '#7a4a4a', fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.fullName} - {lastMsg?.text || ''}</div>
+                      <div style={{ fontSize: 11, color: '#991b1b', marginTop: 2 }}>{new Date(lastMsg?.createdAt || r.createdAt).toLocaleString('vi-VN')}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeSubTab === 'all' && requests.length === 0 ? (
         <p style={{ color: '#991b1b' }}>Chưa có yêu cầu thu cũ nào.</p>
-      ) : (
+      ) : activeSubTab === 'all' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {requests.map(r => (
             <div key={r._id} onClick={() => openDetail(r)} style={{
