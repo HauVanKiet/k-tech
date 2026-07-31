@@ -406,24 +406,33 @@ const ProductDetail = () => {
           )}
         </div>
 
-        {/* Form đăng */}
-        <form onSubmit={handleSubmitReview} style={{ background: '#fef2f2', borderRadius: 12, padding: 16, marginBottom: 20 }}>
-          <div style={{ fontWeight: 700, color: '#7f1d1d', marginBottom: 8 }}>
-            {reviewTab === 'review' ? '✍️ Viết đánh giá của bạn' : '💬 Tham gia thảo luận'}
-          </div>
-          {reviewTab === 'review' && (
-            <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
-              {[1,2,3,4,5].map(s => (
-                <button key={s} type="button" onClick={() => setReviewRating(s)}
-                  style={{ fontSize: 24, color: s <= reviewRating ? '#f59e0b' : '#ddd', background: 'none', border: 'none', cursor: 'pointer' }}>★</button>
-              ))}
+        {/* Form đăng - chỉ hiện khi đã đăng nhập */}
+        {(() => {
+          const user = JSON.parse(localStorage.getItem('user') || 'null');
+          return user ? (
+            <form onSubmit={handleSubmitReview} style={{ background: '#fef2f2', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+              <div style={{ fontWeight: 700, color: '#7f1d1d', marginBottom: 8 }}>
+                {reviewTab === 'review' ? '✍️ Viết đánh giá của bạn' : '💬 Tham gia thảo luận'}
+              </div>
+              {reviewTab === 'review' && (
+                <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+                  {[1,2,3,4,5].map(s => (
+                    <button key={s} type="button" onClick={() => setReviewRating(s)}
+                      style={{ fontSize: 24, color: s <= reviewRating ? '#f59e0b' : '#ddd', background: 'none', border: 'none', cursor: 'pointer' }}>★</button>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder={reviewTab === 'review' ? 'Chia sẻ trải nghiệm của bạn về sản phẩm...' : 'Nhập câu hỏi / bình luận...'} style={{ flex: 1, padding: 12, borderRadius: 10, border: '1px solid rgba(220,38,38,0.2)', outline: 'none' }} />
+                <button type="submit" style={{ background: '#dc2626', color: 'white', border: 'none', borderRadius: 10, padding: '8px 20px', fontWeight: 700, cursor: 'pointer' }}>Gửi</button>
+              </div>
+            </form>
+          ) : (
+            <div style={{ textAlign: 'center', padding: 20, color: '#7a4a4a', background: '#fef2f2', borderRadius: 12, marginBottom: 20 }}>
+              <Link to="/login?redirect=/product/" style={{ color: '#dc2626', fontWeight: 700 }}>Đăng nhập</Link> để tham gia {reviewTab === 'review' ? 'đánh giá' : 'thảo luận'}
             </div>
-          )}
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder={reviewTab === 'review' ? 'Chia sẻ trải nghiệm của bạn về sản phẩm...' : 'Nhập câu hỏi / bình luận...'} style={{ flex: 1, padding: 12, borderRadius: 10, border: '1px solid rgba(220,38,38,0.2)', outline: 'none' }} />
-            <button type="submit" style={{ background: '#dc2626', color: 'white', border: 'none', borderRadius: 10, padding: '8px 20px', fontWeight: 700, cursor: 'pointer' }}>Gửi</button>
-          </div>
-        </form>
+          );
+        })()}
 
         {/* Danh sách */}
         {filteredReviews.length === 0 ? (
