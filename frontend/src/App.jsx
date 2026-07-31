@@ -142,6 +142,10 @@ const ProductDetail = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [reviews, setReviews] = useState([]);
+  const [reviewTab, setReviewTab] = useState('review');
+  const [reviewText, setReviewText] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
   const images = product?.images && product.images.length > 0 ? product.images : [product?.coverImage].filter(Boolean);
 
   useEffect(() => {
@@ -167,6 +171,14 @@ const ProductDetail = () => {
     setSelectedImageIndex(0);
     setIsZoomOpen(false);
     setZoomLevel(1);
+  }, [id]);
+
+  // Fetch đánh giá + thảo luận
+  useEffect(() => {
+    if (!id) return;
+    axios.get(`${API_BASE_URL}/api/reviews/product/${id}`)
+      .then(res => setReviews(res.data.reviews || []))
+      .catch(() => setReviews([]));
   }, [id]);
 
   useEffect(() => {
@@ -226,6 +238,42 @@ const ProductDetail = () => {
       setZoomLevel((prev) => Math.max(prev - 0.15, 1));
     }
   };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    if (!user) {
+      alert('Vui lòng đăng nhập để tham gia!');
+      return;
+    }
+    if (!reviewText.trim()) { alert('Vui lòng nhập nội dung'); return; }
+    const token = localStorage.getItem('token');
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/reviews/`, {
+        product_id: id,
+        type: reviewTab,
+        rating: reviewRating,
+        content: reviewText,
+        user_name: user.fullName || user.username
+      }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      setReviewText('');
+      setReviews(prev => [res.data.review, ...prev]);
+      alert('✅ Đã gửi!');
+    } catch (err) {
+      alert('❌ ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const renderStars = (rating) => {
+    let s = '';
+    for (let i = 1; i <= 5; i++) s += i <= rating ? '★' : '☆';
+    return <span style={{ color: '#f59e0b', letterSpacing: 2 }}>{s}</span>;
+  };
+
+  const filteredReviews = reviews.filter(r => r.type === reviewTab);
+  const avgRating = reviews.filter(r => r.type === 'review').length
+    ? (reviews.filter(r => r.type === 'review').reduce((a, r) => a + (r.rating || 5), 0) / reviews.filter(r => r.type === 'review').length).toFixed(1)
+    : '0';
 
   return (
     <div style={{ padding: '32px 24px 48px', maxWidth: '1200px', margin: '0 auto', color: '#5b1616' }}>
@@ -338,6 +386,68 @@ const ProductDetail = () => {
             </ul>
           </div>
         </div>
+      </div>
+
+      {/* ===== ĐÁNH GIÁ & THẢO LUẬN ===== */}
+      <div style={{ marginTop: 40, background: '#fff', borderRadius: 16, border: '1px solid rgba(220,38,38,0.1)', padding: 24 }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
+          <button onClick={() => setReviewTab('review')}
+            style={{ padding: '8px 20px', borderRadius: 999, border: reviewTab === 'review' ? '2px solid #dc2626' : '1px solid rgba(220,38,38,0.2)', background: reviewTab === 'review' ? '#fff5f5' : '#fff', color: '#7f1d1d', fontWeight: 700, cursor: 'pointer' }}>
+            ⭐ Đánh giá ({reviews.filter(r => r.type === 'review').length})
+          </button>
+          <button onClick={() => setReviewTab('discussion')}
+            style={{ padding: '8px 20px', borderRadius: 999, border: reviewTab === 'discussion' ? '2px solid #dc2626' : '1px solid rgba(220,38,38,0.2)', background: reviewTab === 'discussion' ? '#fff5f5' : '#fff', color: '#7f1d1d', fontWeight: 700, cursor: 'pointer' }}>
+            💬 Thảo luận ({reviews.filter(r => r.type === 'discussion').length})
+          </button>
+          {reviewTab === 'review' && reviews.filter(r => r.type === 'review').length > 0 && (
+            <span style={{ marginLeft: 'auto', fontSize: 16, color: '#7f1d1d', fontWeight: 700 }}>
+              {renderStars(Math.round(Number(avgRating)))} {avgRating}/5
+            </span>
+          )}
+        </div>
+
+        {/* Form đăng */}
+        <form onSubmit={handleSubmitReview} style={{ background: '#fef2f2', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+          <div style={{ fontWeight: 700, color: '#7f1d1d', marginBottom: 8 }}>
+            {reviewTab === 'review' ? '✍️ Viết đánh giá của bạn' : '💬 Tham gia thảo luận'}
+          </div>
+          {reviewTab === 'review' && (
+            <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+              {[1,2,3,4,5].map(s => (
+                <button key={s} type="button" onClick={() => setReviewRating(s)}
+                  style={{ fontSize: 24, color: s <= reviewRating ? '#f59e0b' : '#ddd', background: 'none', border: 'none', cursor: 'pointer' }}>★</button>
+              ))}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder={reviewTab === 'review' ? 'Chia sẻ trải nghiệm của bạn về sản phẩm...' : 'Nhập câu hỏi / bình luận...'} style={{ flex: 1, padding: 12, borderRadius: 10, border: '1px solid rgba(220,38,38,0.2)', outline: 'none' }} />
+            <button type="submit" style={{ background: '#dc2626', color: 'white', border: 'none', borderRadius: 10, padding: '8px 20px', fontWeight: 700, cursor: 'pointer' }}>Gửi</button>
+          </div>
+        </form>
+
+        {/* Danh sách */}
+        {filteredReviews.length === 0 ? (
+          <p style={{ color: '#991b1b', textAlign: 'center' }}>
+            {reviewTab === 'review' ? 'Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá!' : 'Chưa có thảo luận nào. Bắt đầu một câu chuyện nào!'}
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {filteredReviews.map(r => (
+              <div key={r._id} style={{ border: '1px solid rgba(220,38,38,0.08)', borderRadius: 10, padding: 14 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 28, height: 28, borderRadius: '50%', background: '#fee2e2', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>👤</span>
+                    <span style={{ fontWeight: 700, color: '#7f1d1d', fontSize: 14 }}>{r.user_name}</span>
+                    {r.verified_buyer && <span style={{ background: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700 }}>Đã mua ✓</span>}
+                  </div>
+                  <span style={{ fontSize: 11, color: '#991b1b' }}>{new Date(r.createdAt).toLocaleString('vi-VN')}</span>
+                </div>
+                {reviewTab === 'review' && <div style={{ marginBottom: 6 }}>{renderStars(r.rating || 5)}</div>}
+                <div style={{ color: '#5b1616', lineHeight: 1.6 }}>{r.content}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -58,6 +58,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/product'));
 app.use('/api/sepay', require('./routes/sepay'));
 app.use('/api/buyback', require('./routes/buyback'));
+app.use('/api/reviews', require('./routes/productReview'));
 
 // ==================== KHỞI CHẠY SERVER ====================
 const PORT = process.env.PORT || 5000;
