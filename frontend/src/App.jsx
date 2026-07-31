@@ -146,6 +146,7 @@ const ProductDetail = () => {
   const [reviewTab, setReviewTab] = useState('review');
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
+  const [reviewStarFilter, setReviewStarFilter] = useState('all');
   const images = product?.images && product.images.length > 0 ? product.images : [product?.coverImage].filter(Boolean);
 
   useEffect(() => {
@@ -277,7 +278,10 @@ const ProductDetail = () => {
     return <span style={{ color: '#f59e0b', letterSpacing: 2 }}>{s}</span>;
   };
 
-  const filteredReviews = reviews.filter(r => r.type === reviewTab);
+  const filteredReviews = reviews.filter(r => r.type === reviewTab).filter(r => {
+    if (reviewTab !== 'review' || reviewStarFilter === 'all') return true;
+    return r.rating === Number(reviewStarFilter);
+  });
   const avgRating = reviews.filter(r => r.type === 'review').length
     ? (reviews.filter(r => r.type === 'review').reduce((a, r) => a + (r.rating || 5), 0) / reviews.filter(r => r.type === 'review').length).toFixed(1)
     : '0';
@@ -412,6 +416,22 @@ const ProductDetail = () => {
             </span>
           )}
         </div>
+
+        {/* Bộ lọc sao */}
+        {reviewTab === 'review' && reviews.filter(r => r.type === 'review').length > 0 && (
+          <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
+            {['all','5','4','3','2','1'].map(s => (
+              <button key={s} onClick={() => setReviewStarFilter(s)}
+                style={{
+                  padding: '4px 12px', borderRadius: 999, cursor: 'pointer', fontSize: 13,
+                  border: reviewStarFilter === s ? '2px solid #dc2626' : '1px solid rgba(220,38,38,0.15)',
+                  background: reviewStarFilter === s ? '#fff5f5' : '#fff', color: '#7f1d1d', fontWeight: reviewStarFilter === s ? 700 : 500
+                }}>
+                {s === 'all' ? 'Tất cả' : s === '5' ? '⭐⭐⭐⭐⭐' : s === '4' ? '⭐⭐⭐⭐' : s === '3' ? '⭐⭐⭐' : s === '2' ? '⭐⭐' : '⭐'}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Form đăng - chỉ hiện khi đã đăng nhập */}
         {(() => {
