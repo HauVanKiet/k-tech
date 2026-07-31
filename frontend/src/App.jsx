@@ -260,7 +260,14 @@ const ProductDetail = () => {
       setReviews(prev => [res.data.review, ...prev]);
       alert('✅ Đã gửi!');
     } catch (err) {
-      alert('❌ ' + (err.response?.data?.message || err.message));
+      const errMsg = err.response?.data?.message || err.message;
+      if (errMsg.includes('Token') || errMsg.includes('token')) {
+        alert('⏳ Phiên đăng nhập hết hạn. Vui lòng đăng xuất và đăng nhập lại!');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      } else {
+        alert('❌ ' + errMsg);
+      }
     }
   };
 

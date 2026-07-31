@@ -11,7 +11,10 @@ const authMiddleware = (req, res, next) => {
         const verified = jwt.verify(token, process.env.JWT_SECRET);
         req.user = verified;
         next();
-    } catch (err) { res.status(400).json({ message: "Token không hợp lệ" }); }
+    } catch (err) {
+        console.error("JWT Verify Error:", err.message);
+        res.status(400).json({ message: "Token không hợp lệ: " + err.message }); 
+    }
 };
 
 // Lấy toàn bộ đánh giá + thảo luận của 1 sản phẩm (public)
