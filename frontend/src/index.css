@@ -139,6 +139,40 @@ textarea {
   text-align: center;
 }
 
+/* Mobile links - ẩn trên desktop, hiện trong menu hamburger trên mobile */
+.ktech-mobile-links {
+  display: none;
+}
+.ktech-mobile-links a {
+  border-top: 1px solid rgba(220,38,38,0.08);
+}
+.ktech-mobile-links a:first-child {
+  border-top: 1px solid rgba(220,38,38,0.15);
+  margin-top: 4px;
+}
+.ktech-nav-toggle {
+  display: none;
+}
+.ktech-nav-menu a {
+  display: block;
+  padding: 10px 16px;
+  color: #7f1d1d;
+  text-decoration: none;
+}
+.ktech-nav-menu a:hover {
+  background: #fef2f2;
+}
+.ktech-nav-menu .ktech-mobile-links {
+  display: block;
+}
+.ktech-nav-menu .ktech-mobile-links a {
+  border-top: 1px solid rgba(220,38,38,0.08);
+}
+.ktech-nav-menu .ktech-mobile-links a:first-child {
+  border-top: 1px solid rgba(220,38,38,0.15);
+  margin-top: 4px;
+}
+
 /* Media queries */
 @media (max-width: 768px) {
   .ktech-nav-links {

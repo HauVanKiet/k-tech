@@ -727,9 +727,10 @@ const AppContent = () => {
           <div
             onMouseEnter={() => setNavOpen(true)}
             onMouseLeave={() => setNavOpen(false)}
+            onClick={() => setNavOpen(!navOpen)}
             style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
           >
-            <span style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'center', gap: '3px', marginRight: '8px' }}>
+            <span className="ktech-nav-toggle" style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'center', gap: '3px', marginRight: '8px' }}>
               <span style={{ width: '18px', height: '2px', background: '#b91c1c', borderRadius: '2px' }} />
               <span style={{ width: '18px', height: '2px', background: '#b91c1c', borderRadius: '2px' }} />
               <span style={{ width: '18px', height: '2px', background: '#b91c1c', borderRadius: '2px' }} />
@@ -739,7 +740,7 @@ const AppContent = () => {
               <span style={{ color: '#7f1d1d', fontSize: '12px' }}>Thu mua - Thu đổi - Bán nhanh</span>
             </div>
             {navOpen && (
-              <div style={{ position: 'absolute', top: '100%', left: 0, background: 'white', border: '1px solid rgba(220,38,38,0.15)', borderRadius: '14px', boxShadow: '0 16px 40px rgba(0,0,0,0.08)', padding: '8px 0', minWidth: '220px', zIndex: 1000 }}>
+              <div className="ktech-nav-menu" style={{ position: 'absolute', top: '100%', left: 0, background: 'white', border: '1px solid rgba(220,38,38,0.15)', borderRadius: '14px', boxShadow: '0 16px 40px rgba(0,0,0,0.08)', padding: '8px 0', minWidth: '220px', zIndex: 1000 }}>
                 {currentUser && currentUser.role === 'admin' ? (
                   <>
                     <Link to="/admin/products" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Quản lý sản phẩm</Link>
@@ -753,6 +754,17 @@ const AppContent = () => {
                     <Link to="/buyback" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Thu cũ sản phẩm</Link>
                   </>
                 )}
+                {/* Mobile links - chỉ hiển thị trên điện thoại */}
+                <div className="ktech-mobile-links">
+                  <Link to="/about" onClick={() => setNavOpen(false)} style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Giới thiệu</Link>
+                  <Link to="/contact" onClick={() => setNavOpen(false)} style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Liên hệ</Link>
+                  <Link to="/news" onClick={() => setNavOpen(false)} style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Tin tức</Link>
+                  {currentUser && (
+                    <Link to="/cart" onClick={() => setNavOpen(false)} style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>
+                      Giỏ hàng {cartCount > 0 && `(${cartCount})`}
+                    </Link>
+                  )}
+                </div>
               </div>
             )}
           </div>
