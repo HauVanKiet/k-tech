@@ -62,7 +62,7 @@ const News = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           {posts.map(p => (
-            <div key={p._id} className="ktech-news-card" style={{ background: 'linear-gradient(145deg, #ffffff 0%, #fff7f7 100%)', border: '1px solid rgba(220,38,38,0.12)', borderRadius: '18px', padding: '22px', boxShadow: '0 10px 28px rgba(220,38,38,0.07)', cursor: 'pointer', transition: 'transform 0.2s ease, box-shadow 0.2s ease', display: 'flex', gap: '18px', alignItems: 'center' }} onClick={() => setSelected(p._id)}>
+            <div key={p._id} style={{ background: 'linear-gradient(145deg, #ffffff 0%, #fff7f7 100%)', border: '1px solid rgba(220,38,38,0.12)', borderRadius: '18px', padding: '22px', boxShadow: '0 10px 28px rgba(220,38,38,0.07)', cursor: 'pointer', transition: 'transform 0.2s ease, box-shadow 0.2s ease', display: 'flex', gap: '18px', alignItems: 'center' }} onClick={() => setSelected(p._id)}>
               {p.coverImage && (
                 <div style={{ width: '160px', height: '110px', borderRadius: '12px', overflow: 'hidden', background: '#fef2f2', flexShrink: 0 }}>
                   <img src={p.coverImage} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />

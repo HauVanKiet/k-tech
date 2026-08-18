@@ -134,8 +134,8 @@ const Buyback = () => {
   }
 
   return (
-    <div className="ktech-buyback" style={{ maxWidth: 1200, margin: '0 auto', padding: '24px', display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, minHeight: '80vh', color: '#5b1616' }}>
-      <div className="ktech-buyback-sidebar" style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid rgba(220,38,38,0.1)', height: 'fit-content', position: 'sticky', top: 24 }}>
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px', display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, minHeight: '80vh', color: '#5b1616' }}>
+      <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid rgba(220,38,38,0.1)', height: 'fit-content', position: 'sticky', top: 24 }}>
         <h3 style={{ color: '#7f1d1d', margin: '0 0 16px', fontSize: 16 }}>📦 Thu cũ sản phẩm</h3>
         {[{ key: 'create', label: 'Tạo yêu cầu thu cũ' },{ key: 'my', label: 'Yêu cầu của tôi' },{ key: 'history', label: 'Lịch sử thu cũ' },{ key: 'messages', label: 'Tin nhắn' }].map(tab => (
           <div key={tab.key} onClick={() => { setActiveTab(tab.key); setShowDelivery(false); setSelectedRequest(null); }}

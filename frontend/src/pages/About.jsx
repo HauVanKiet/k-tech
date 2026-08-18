@@ -23,7 +23,7 @@ const About = () => {
 
       {/* GIÁ TRỊ CỐT LÕI */}
       <h2 style={{ color: '#7f1d1d', textAlign: 'center', marginBottom: '28px', fontSize: '26px' }}>💎 Giá trị cốt lõi</h2>
-      <div className="ktech-about-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '20px' }}>
         {values.map((v, i) => (
           <div key={i} style={{ background: 'linear-gradient(145deg, #ffffff 0%, #fff7f7 100%)', border: '1px solid rgba(220,38,38,0.12)', borderRadius: '18px', padding: '24px 20px', textAlign: 'center', boxShadow: '0 12px 32px rgba(220,38,38,0.08)' }}>
             <div style={{ fontSize: '40px', marginBottom: '12px' }}>{v.icon}</div>
