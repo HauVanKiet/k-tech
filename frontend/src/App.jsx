@@ -151,7 +151,8 @@ const ProductDetail = () => {
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewStarFilter, setReviewStarFilter] = useState('all');
-  const images = product?.images && product.images.length > 0 ? product.images : [product?.coverImage].filter(Boolean);
+  // Loại bỏ ảnh trùng lặp để tránh trường hợp 1 ảnh bị hiển thị 2 lần
+  const images = [...new Set(product?.images && product.images.length > 0 ? product.images : [product?.coverImage].filter(Boolean))];
 
   useEffect(() => {
     const fetchProduct = async () => {
