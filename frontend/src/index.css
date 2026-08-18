@@ -33,3 +33,174 @@ textarea {
   font: inherit;
 }
 
+/* ==================== RESPONSIVE MOBILE ==================== */
+/* Navbar */
+.ktech-nav {
+  flex-wrap: wrap;
+  gap: 10px !important;
+  padding: 12px 14px !important;
+}
+.ktech-nav-search {
+  order: 3;
+  flex-basis: 100%;
+  max-width: 100% !important;
+}
+.ktech-nav-links {
+  display: none !important;
+}
+.ktech-nav-user {
+  margin-left: auto !important;
+}
+
+/* Product grid */
+.ktech-product-grid {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+  gap: 12px !important;
+}
+.ktech-product-card {
+  padding: 12px !important;
+}
+.ktech-product-card img {
+  height: 140px !important;
+}
+.ktech-product-card h3 {
+  font-size: 15px !important;
+}
+.ktech-product-card .ktech-price {
+  font-size: 14px !important;
+}
+
+/* Product detail */
+.ktech-product-detail {
+  grid-template-columns: 1fr !important;
+}
+.ktech-product-detail h2 {
+  font-size: 22px !important;
+}
+
+/* Filter bar */
+.ktech-filter-bar {
+  margin: 0 !important;
+  padding: 12px 14px !important;
+  max-width: 100% !important;
+}
+.ktech-filter-bar > div {
+  flex: 1 1 100% !important;
+}
+
+/* About / Contact / News */
+.ktech-about-grid,
+.ktech-contact-grid {
+  grid-template-columns: 1fr !important;
+}
+.ktech-news-card {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+.ktech-news-card img {
+  width: 100% !important;
+  height: 160px !important;
+}
+
+/* Admin tables */
+.ktech-admin-table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* Modal */
+.ktech-modal {
+  width: 95% !important;
+  max-width: 95% !important;
+}
+
+/* Buttons */
+.ktech-btn-group {
+  flex-wrap: wrap;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+  .ktech-nav-links {
+    display: none !important;
+  }
+  .ktech-nav-search {
+    order: 3;
+    flex-basis: 100%;
+    max-width: 100% !important;
+  }
+  .ktech-product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .ktech-product-card img {
+    height: 120px !important;
+  }
+  .ktech-product-detail {
+    grid-template-columns: 1fr !important;
+  }
+  .ktech-filter-bar > div {
+    flex: 1 1 100% !important;
+  }
+  .ktech-about-grid,
+  .ktech-contact-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .ktech-news-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .ktech-news-card img {
+    width: 100% !important;
+    height: 160px !important;
+  }
+  .ktech-modal {
+    width: 95% !important;
+    max-width: 95% !important;
+  }
+  .ktech-admin-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .ktech-product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .ktech-product-card {
+    padding: 10px !important;
+  }
+  .ktech-product-card img {
+    height: 100px !important;
+  }
+  .ktech-product-card h3 {
+    font-size: 13px !important;
+  }
+  .ktech-product-card .ktech-price {
+    font-size: 12px !important;
+  }
+  .ktech-product-card .ktech-desc {
+    display: none !important;
+  }
+  .ktech-product-card .ktech-actions {
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+  .ktech-product-card .ktech-actions button {
+    width: 100% !important;
+    text-align: center !important;
+  }
+  .ktech-nav {
+    padding: 10px 12px !important;
+  }
+  .ktech-nav .ktech-logo span {
+    font-size: 16px !important;
+  }
+  .ktech-nav .ktech-logo small {
+    font-size: 10px !important;
+  }
+}

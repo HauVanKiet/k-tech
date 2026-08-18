@@ -78,9 +78,9 @@ const Home = ({ searchQuery, categoryFilter, priceFilter, conditionFilter }) => 
             {searchQuery ? `Không tìm thấy sản phẩm với từ khoá “${searchQuery}”.` : 'Chưa có sản phẩm nào được đăng bán.'}
           </p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '22px', marginTop: '12px' }}>
+          <div className="ktech-product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '22px', marginTop: '12px' }}>
             {filteredProducts.map(product => (
-              <div key={product._id} style={{ background: 'linear-gradient(145deg, #ffffff 0%, #fff4f4 100%)', border: '1px solid rgba(220,38,38,0.14)', borderRadius: '18px', padding: '16px', textAlign: 'left', boxShadow: '0 16px 40px rgba(220,38,38,0.1)', transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}>
+              <div key={product._id} className="ktech-product-card" style={{ background: 'linear-gradient(145deg, #ffffff 0%, #fff4f4 100%)', border: '1px solid rgba(220,38,38,0.14)', borderRadius: '18px', padding: '16px', textAlign: 'left', boxShadow: '0 16px 40px rgba(220,38,38,0.1)', transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}>
                 <Link to={`/product/${product._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div style={{ width: '100%', height: '200px', marginBottom: '14px', borderRadius: '12px', overflow: 'hidden', background: '#fef2f2', border: '1px solid rgba(220,38,38,0.08)' }}>
                     <img src={product.coverImage} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
@@ -293,7 +293,7 @@ const ProductDetail = () => {
   return (
     <div style={{ padding: '32px 24px 48px', maxWidth: '1200px', margin: '0 auto', color: '#5b1616' }}>
       <Link to="/" style={{ color: '#dc2626', textDecoration: 'none', fontWeight: '700', display: 'inline-block', marginBottom: '20px' }}>← Quay lại trang chủ</Link>
-      <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: '24px', alignItems: 'start' }}>
+      <div className="ktech-product-detail" style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: '24px', alignItems: 'start' }}>
         <div style={{ background: 'linear-gradient(145deg, #ffffff 0%, #fff7f7 100%)', borderRadius: '24px', padding: '18px', boxShadow: '0 18px 50px rgba(220,38,38,0.12)' }}>
           <div
             onClick={() => openImage(selectedImageIndex)}
@@ -659,7 +659,7 @@ const FilterBar = ({ searchQuery, setSearchQuery, categoryFilter, setCategoryFil
   if (location.pathname !== '/') return null;
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-end', padding: '12px 20px 0', background: 'transparent', maxWidth: '1080px', margin: '0 0 0 20px' }}>
+    <div className="ktech-filter-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-end', padding: '12px 20px 0', background: 'transparent', maxWidth: '1080px', margin: '0 0 0 20px' }}>
       <div style={{ flex: '1 1 220px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
         <span style={{ color: '#7f1d1d', fontSize: '12px', fontWeight: '600' }}>Loại sản phẩm</span>
         <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} style={{ width: '100%', borderRadius: '999px', border: '1px solid rgba(220,38,38,0.22)', padding: '10px 14px', background: 'white', color: '#5b1616' }}>
@@ -723,7 +723,7 @@ const AppContent = () => {
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', background: '#ffffff', minHeight: '100vh', color: '#5b1616' }}>
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <nav style={{ background: 'rgba(255,255,255,0.95)', padding: '15px 20px', display: 'flex', gap: '16px', alignItems: 'center', borderBottom: '1px solid rgba(220,38,38,0.16)', boxShadow: '0 8px 24px rgba(220,38,38,0.08)' }}>
+        <nav className="ktech-nav" style={{ background: 'rgba(255,255,255,0.95)', padding: '15px 20px', display: 'flex', gap: '16px', alignItems: 'center', borderBottom: '1px solid rgba(220,38,38,0.16)', boxShadow: '0 8px 24px rgba(220,38,38,0.08)' }}>
           <div
             onMouseEnter={() => setNavOpen(true)}
             onMouseLeave={() => setNavOpen(false)}
@@ -757,7 +757,7 @@ const AppContent = () => {
             )}
           </div>
           <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
-            <div style={{ position: 'relative', width: '100%', maxWidth: '560px' }}>
+            <div className="ktech-nav-search" style={{ position: 'relative', width: '100%', maxWidth: '560px' }}>
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -776,10 +776,10 @@ const AppContent = () => {
               </span>
             </div>
           </div>
-          <Link to="/about" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600' }}>Giới thiệu</Link>
-          <Link to="/contact" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600' }}>Liên hệ</Link>
+          <Link to="/about" className="ktech-nav-links" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600' }}>Giới thiệu</Link>
+          <Link to="/contact" className="ktech-nav-links" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600' }}>Liên hệ</Link>
           {currentUser && (
-            <Link to="/cart" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600', position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+            <Link to="/cart" className="ktech-nav-links" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600', position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
               Giỏ hàng
               {cartCount > 0 && (
                 <span style={{
@@ -792,9 +792,9 @@ const AppContent = () => {
               )}
             </Link>
           )}
-          <Link to="/news" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600' }}>Tin tức</Link>
+          <Link to="/news" className="ktech-nav-links" style={{ color: '#7f1d1d', textDecoration: 'none', fontWeight: '600' }}>Tin tức</Link>
           
-          <div style={{ marginLeft: 'auto', position: 'relative' }}>
+          <div className="ktech-nav-user" style={{ marginLeft: 'auto', position: 'relative' }}>
             {currentUser ? (
               <div>
                 <button
