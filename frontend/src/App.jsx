@@ -9,10 +9,14 @@ import AdminUsers from './admin/AdminUsers';
 import AdminBuyback from './admin/AdminBuyback';
 import Buyback from './pages/Buyback';
 import AdminOrders from './admin/AdminOrders';
+import AdminPosts from './admin/AdminPosts';
 import { CartProvider, useCart } from './context/CartContext';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderHistory from './pages/OrderHistory';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import News from './pages/News';
 
 // ==================== 1. TRANG CHỦ: HIỂN THỊ SẢN PHẨM ====================
 const Home = ({ searchQuery, categoryFilter, priceFilter, conditionFilter }) => {
@@ -742,6 +746,7 @@ const AppContent = () => {
                     <Link to="/admin/users" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Quản lý người dùng</Link>
                     <Link to="/admin/orders" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Quản lý đơn hàng</Link>
                     <Link to="/admin/buyback" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Quản lý thu cũ</Link>
+                    <Link to="/admin/posts" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Quản lý bài đăng</Link>
                   </>
                 ) : (
                   <>
@@ -836,11 +841,15 @@ const AppContent = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<OrderHistory />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/news" element={<News />} />
           <Route path="/admin" element={<AdminProducts />} />
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/buyback" element={<AdminBuyback />} />
+          <Route path="/admin/posts" element={<AdminPosts />} />
         </Routes>
       </div>
     </div>
