@@ -120,6 +120,25 @@ textarea {
   flex-wrap: wrap;
 }
 
+/* Buyback page */
+.ktech-buyback {
+  grid-template-columns: 1fr !important;
+}
+.ktech-buyback-sidebar {
+  position: static !important;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ktech-buyback-sidebar h3 {
+  width: 100%;
+}
+.ktech-buyback-sidebar > div {
+  flex: 1 1 auto;
+  margin-bottom: 0 !important;
+  text-align: center;
+}
+
 /* Media queries */
 @media (max-width: 768px) {
   .ktech-nav-links {
@@ -163,6 +182,26 @@ textarea {
     display: block;
     overflow-x: auto;
     white-space: nowrap;
+  }
+  .ktech-buyback {
+    grid-template-columns: 1fr !important;
+  }
+  .ktech-buyback-sidebar {
+    position: static !important;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ktech-buyback-sidebar h3 {
+    width: 100%;
+  }
+  .ktech-buyback-sidebar > div {
+    flex: 1 1 auto;
+    margin-bottom: 0 !important;
+    text-align: center;
+  }
+  .ktech-buyback form > div {
+    grid-template-columns: 1fr !important;
   }
 }
 
