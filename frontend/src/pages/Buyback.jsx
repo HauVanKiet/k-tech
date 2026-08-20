@@ -212,9 +212,11 @@ const Buyback = () => {
                   {r.status === 'accepted' && (
                     <div style={{ marginTop: 8 }}>
                       <div style={{ fontSize: 13, color: '#7a4a4a', marginBottom: 4 }}>📦 Phương thức: {r.shippingMethod === 'store' ? 'Gửi tại cửa hàng' : r.shippingMethod === 'shipping' ? 'Gửi chuyển phát' : r.shippingMethod === 'home' ? 'Thu tại nhà' : 'Chưa chọn'}</div>
-                      <button onClick={() => openChat(r)} style={{ background: '#2563eb', color: 'white', border: 'none', padding: '6px 14px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>💬 Chat với admin</button>
                     </div>
                   )}
+                  <div style={{ marginTop: 8 }}>
+                    <button onClick={() => openChat(r)} style={{ background: '#2563eb', color: 'white', border: 'none', padding: '6px 14px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>💬 Chat với admin</button>
+                  </div>
                 </div>
               ))
             )}
