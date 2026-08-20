@@ -32,3 +32,133 @@ select,
 textarea {
   font: inherit;
 }
+
+/* ================================================================
+   RESPONSIVE MOBILE — tự chuyển giao diện khi truy cập từ điện thoại
+   Desktop (máy tính): giữ layout web bình thường
+   Mobile (điện thoại): layout 1 cột hoàn cộng
+   ================================================================ */
+
+/* dropdown menu */
+.ktech-nav-menu {
+}
+.ktech-nav-menu a {
+  display: block;
+  padding: 10px 16px;
+  color: #7f1d1d;
+  text-decoration: none;
+}
+.ktech-nav-menu a:hover {
+  background: #fef2f2;
+}
+/* nhóm link mobile — ẩn trên desktop, hiện trong menu dropdown ở mobile */
+.ktech-mobile-links {
+  display: none;
+}
+
+/* ================================================================
+   Tất cả các quy tắc mobile (lưới sản phẩm, chi tiết, filter, about,
+   contact, news, buyback) nằm trong @media bên dưới,
+   nên desktop luôn giữ giao diện web chuẩn.
+   ================================================================ */
+
+@media (max-width: 768px) {
+  /* Navbar: tất nav links ngang ẩn, nội content xuống dòng */
+  .ktech-nav {
+    flex-wrap: wrap;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+  }
+  .ktech-nav-search {
+    order: 3;
+    flex-basis: 100%;
+    max-width: 100% !important;
+  }
+  .ktech-nav-links,
+  .ktech-nav-link {
+    display: none !important;
+  }
+  .ktech-nav-user {
+    margin-left: auto !important;
+  }
+  .ktech-nav-logo span {
+    font-size: 16px !important;
+  }
+  .ktech-nav-logo small {
+    font-size: 10px !important;
+  }
+  /* Hiện mobile links trong menu dropdown */
+  .ktech-nav-menu .ktech-mobile-links {
+    display: block !important;
+  }
+  .ktech-nav-menu .ktech-mobile-links a {
+    border-top: 1px solid rgba(220,38,38,0.08);
+  }
+  .ktech-nav-menu .ktech-mobile-links a:first-child {
+    border-top: 1px solid rgba(220,38,38,0.15);
+    margin-top: 4px;
+  }
+
+  /* Lưới sản phẩm: 2 cột nhỏ */
+  .ktech-product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  /* Chi tiết sản phẩm: 1 cột */
+  .ktech-product-detail {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Filter bar: full width, các select xếp dọc */
+  .ktech-filter-bar > div {
+    flex: 1 1 100% !important;
+  }
+
+  /* About / Contact: 1 cột */
+  .ktech-about-grid,
+  .ktech-contact-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* News: card dọc, ảnh full width */
+  .ktech-news-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* Buyback: sidebar 1 cộl */
+  .ktech-buyback {
+    grid-template-columns: 1fr !important;
+  }
+  .ktech-buyback-sidebar {
+    position: static !important;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ktech-buyback-sidebar h3 {
+    width: 100%;
+  }
+  .ktech-buyback-sidebar > div {
+    flex: 1 1 auto;
+    margin-bottom: 0 !important;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .ktech-product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .ktech-nav {
+    padding: 10px 12px !important;
+  }
+  .ktech-nav-logo span {
+    font-size: 15px !important;
+  }
+  .ktech-nav-logo small {
+    font-size: 9px !important;
+  }
+}

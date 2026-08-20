@@ -45,7 +45,7 @@ const Contact = () => {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '28px', alignItems: 'start' }}>
+      <div className="ktech-contact-grid" style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '28px', alignItems: 'start' }}>
         {/* FORM */}
         <div style={{ background: 'linear-gradient(145deg, #ffffff 0%, #fff7f7 100%)', border: '1px solid rgba(220,38,38,0.12)', borderRadius: '20px', padding: '28px', boxShadow: '0 14px 40px rgba(220,38,38,0.08)' }}>
           <h2 style={{ margin: '0 0 20px', color: '#7f1d1d', fontSize: '22px' }}>✍️ Gửi yêu cầu cho chúng tôi</h2>
