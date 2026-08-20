@@ -303,6 +303,7 @@ const ProductDetail = () => {
           >
             <img src={selectedImage} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
+          {images.length > 1 && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: '10px', marginTop: '12px' }}>
             {images.map((img, index) => (
               <button
@@ -314,6 +315,7 @@ const ProductDetail = () => {
               </button>
             ))}
           </div>
+          )}
         </div>
 
         {isZoomOpen && (
