@@ -33,6 +33,15 @@ const AdminProducts = () => {
     setShowEditModal(true);
   };
 
+  const handleMarkSold = async (id) => {
+    if (!confirm('Đánh dấu sản phẩm này là đã bán hết?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${API_BASE_URL}/api/products/${id}/sold`, {}, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      alert('Đã đánh dấu sản phẩm là bán hết'); fetchProducts();
+    } catch (err) { alert('Lỗi: ' + (err.response?.data?.message || err.message)); }
+  };
+
   const handleDelete = async (id) => {
     if (!confirm('Xóa sản phẩm này?')) return;
     try {
@@ -67,6 +76,7 @@ const AdminProducts = () => {
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => handleEdit(p)} style={{ padding: '6px 10px' }}>Sửa</button>
+                <button onClick={() => handleMarkSold(p._id)} style={{ padding: '6px 10px', background: '#9a3412', color: 'white', border: 'none' }}>Đã bán hết</button>
                 <button onClick={() => handleDelete(p._id)} style={{ padding: '6px 10px', background: '#ff4d4d', color: 'white', border: 'none' }}>Xóa</button>
               </div>
             </div>

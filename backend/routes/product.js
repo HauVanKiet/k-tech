@@ -77,11 +77,42 @@ router.post('/add', upload.array('images', 8), async (req, res) => {
 // API 2: Lấy tất cả sản phẩm -> ĐƯỜNG DẪN THỰC TẾ SẼ LÀ: http://localhost:5000/api/products/all
 router.get('/all', async (req, res) => {
     try {
-        const products = await Product.find().sort({ createdAt: -1 });
+        const products = await Product.find({ soldStatus: { $ne: 'sold' } }).sort({ createdAt: -1 });
         res.status(200).json({ success: true, products });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
+});
+// API: Lấy sản phẩm đã bán hết (admin) -> /api/products/sold/all
+router.get('/sold/all', authAdmin, async (req, res) => {
+    try {
+        const products = await Product.find({ soldStatus: 'sold' }).sort({ createdAt: -1 });
+        res.status(200).json({ success: true, products });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// API: Đán sản phẩm = đã bán hết (admin) -> PUT /api/products/:id/sold
+router.put('/:id/sold', authAdmin, async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ success: false, message: 'Sản phẩm không tồn' });
+        product.soldStatus = 'sold';
+        await product.save();
+        res.json({ success: true, product });
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// API: Вернуть sản phẩm đã bán hết до active (admin) -> PUT /api/products/:id/restore
+router.put('/:id/restore', authAdmin, async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ success: false, message: 'Sản phẩм не існує' });
+        product.soldStatus = 'active';
+        await product.save();
+        res.json({ success: true, product });
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
 // API 3: Lấy chi tiết 1 sản phẩm theo ID

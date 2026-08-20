@@ -10,6 +10,7 @@ import AdminBuyback from './admin/AdminBuyback';
 import Buyback from './pages/Buyback';
 import AdminOrders from './admin/AdminOrders';
 import AdminPosts from './admin/AdminPosts';
+import AdminSoldProducts from './admin/AdminSoldProducts';
 import { CartProvider, useCart } from './context/CartContext';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
@@ -749,6 +750,7 @@ const AppContent = () => {
                     <Link to="/admin/orders" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Quản lý đơn hàng</Link>
                     <Link to="/admin/buyback" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Quản lý thu cũ</Link>
                     <Link to="/admin/posts" style={{ display: 'block', padding: '10px 16px', color: '#b91c1c', textDecoration: 'none', fontWeight: '600' }}>Quản lý bài đăng</Link>
+                    <Link to="/admin/sold" style={{ display: 'block', padding: '10px 16px', color: '#7f1d1d', textDecoration: 'none' }}>Quản lý sản phẩm đã bán</Link>
                   </>
                 ) : (
                   <>
@@ -863,6 +865,7 @@ const AppContent = () => {
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/buyback" element={<AdminBuyback />} />
           <Route path="/admin/posts" element={<AdminPosts />} />
+          <Route path="/admin/sold" element={<AdminSoldProducts />} />
         </Routes>
       </div>
     </div>

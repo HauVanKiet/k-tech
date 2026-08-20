@@ -10,6 +10,7 @@ const ProductSchema = new mongoose.Schema({
     condition: { type: String, enum: ['mới', 'cũ'], default: 'mới' },
     quantity: { type: Number, default: 0, min: 0 },
     stockStatus: { type: String, enum: ['còn hàng', 'tạm hết hàng'], default: 'còn hàng' },
+    soldStatus: { type: String, enum: ['active', 'sold'], default: 'active' }, // active = đang bán, sold = đã bán hết
     warranty: { type: String, default: '' }
 }, { timestamps: true });
 
